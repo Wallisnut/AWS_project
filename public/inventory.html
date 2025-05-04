@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory</title>
+    <link rel="stylesheet" href="css/inventory.css">
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo">Bite<span>Bright</span></div>
+    <input type="text" placeholder="Search...">
+    <div class="nav-icons">
+        <span>👤</span>
+        <span>🔔</span>
+    </div>
+</div>
+
+<div class="header-container">
+    <div class="header">
+        <a href="login.html" class="back-link">← Inventory</a>
+        <button class="add-btn" onclick="openAddItem()">+ Add Item</button>
+    </div>
+</div>
+
+<div class="inventory-container">
+    <div class="top-bar">
+        <input class="search" id="search-input" type="text" placeholder="Search Inventory..." oninput="renderItems()">
+        <div class="sort-bar">
+            Sort by:
+            <select id="sort-select" onchange="changeSort()">
+                <option value="dateAdded">Date Added</option>
+                <option value="expiresInDays" selected>Expired Date</option>
+            </select>            
+        </div>
+    </div>
+
+    <div class="filter-bar" id="filter-bar"></div>
+    <div id="items-container"></div>
+</div>
+
+<!-- Add Item Modal -->
+<div id="add-item-modal" style="display: none;">
+    <div class="add-item-form">
+        <h2>Add New Item</h2>
+        <p>Enter the details of the item you want to add</p>
+        <input id="item-name" type="text" placeholder="Item">
+        <select id="item-category">
+            <option value="">Select Category</option>
+            <option value="Dairy">Dairy</option>
+            <option value="Produce">Produce</option>
+            <option value="Meat">Meat</option>
+            <option value="Pantry">Pantry</option>
+        </select>
+        <input id="item-size" type="text" placeholder="Quantity / Size">
+        <p id="form-expired">Expired Date:</p>
+        <input id="item-expiry" type="date">
+        <div class="actions">
+            <button class="cancel-btn" onclick="closeAddItem()">Cancel</button>
+            <button class="save-btn" onclick="saveItem()">Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Item Modal -->
+<div id="edit-item-modal" style="display: none;">
+    <div class="add-item-form">
+        <h2>Edit Item</h2>
+        <p>Edit the details of the item</p>
+        <input id="edit-item-name" type="text" placeholder="Item">
+        <select id="edit-item-category">
+            <option value="">Select Category</option>
+            <option value="Dairy">Dairy</option>
+            <option value="Produce">Produce</option>
+            <option value="Meat">Meat</option>
+            <option value="Pantry">Pantry</option>
+        </select>
+        <input id="edit-item-size" type="text" placeholder="Quantity / Size">
+        <p id="form-expired">Expired Date:</p>
+        <input id="edit-item-expiry" type="date">
+        <div class="actions">
+            <button class="cancel-btn" onclick="closeEditItem()">Cancel</button>
+            <button class="save-btn" onclick="saveEditItem()">Save</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/inventory.js"></script>
+</body>
+</html>

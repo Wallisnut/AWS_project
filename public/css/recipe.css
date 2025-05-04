@@ -1,0 +1,131 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+}
+
+.navbar {
+    background-color: white;
+    padding: 10px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-container {
+    display: flex;
+    justify-content: center;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    width: 900px;
+    padding: 20px 0;
+}
+
+.back-link {
+    font-size: 24px;
+    font-weight: bold;
+    text-decoration: none;
+    color: black;
+}
+
+.back-link:hover {
+    color: #00c853;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #00c853;
+}
+
+.logo span {
+    color: gold;
+}
+
+.nav-icons span {
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+.recipe-container {
+    background-color: white;
+    width: 900px;
+    margin: 40px auto;
+    padding: 30px;
+    border-radius: 10px;
+    margin-top: 0;
+}
+
+h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.section {
+    margin-bottom: 40px;
+}
+
+.section h3 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.section p {
+    color: #777;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.recipe-card {
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.recipe-card img {
+    width: 100%;
+    height: 120px;
+    background-color: #ccc;
+    border-radius: 5px;
+}
+
+.recipe-card h4 {
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.recipe-card p {
+    font-size: 12px;
+    color: #555;
+    margin: 4px 0;
+}
+
+.recipe-card .view-btn {
+    background-color: #00c853;
+    color: white;
+    padding: 8px 0;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.recipe-card .view-btn:hover {
+    background-color: #019c42;
+}
+
