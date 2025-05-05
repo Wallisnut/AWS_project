@@ -329,7 +329,7 @@
   
   .recipe-image {
     height: 180px;
-    background-image: url("https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Home-oRngCytJeyaQiQ4LOvTrvzhf7VT0Dg.png");
+    
     background-size: cover;
     background-position: center;
     position: relative;
@@ -353,6 +353,10 @@
     padding: 20px;
     position: relative;
     z-index: 1;
+  }
+
+  .recipe-image .padkraphaoimage {
+    background-image: url('../img/Padkraphao.jpg');
   }
   
   .recipe-details {
