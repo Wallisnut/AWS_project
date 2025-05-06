@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="./css/Home.css">
     <link rel="stylesheet" href="./css/dropdown.css">
     <link rel="stylesheet" href="./css/inventory.css">
+    <link rel="stylesheet" href="./css/recipeRecom.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -95,134 +96,37 @@
         </div>
     </header>
 
+    
     <main class="inventory-main">
         <div class="inventory-header">
             <div class="back-navigation">
                 <a href="Homepage.html" class="back-button">
                     <i class="fas fa-arrow-left"></i>
                 </a>
-                <h1 class="page-title">Inventory</h1>
+                <h1 class="page-title">Recipe Recommendations</h1>
             </div>
-            <button class="add-item-btn"><i class="fas fa-plus"></i> Add Item</button>
         </div>
 
-        <div class="inventory-container">
-            <div class="inventory-controls">
-                <div class="search-bar">
-                    <input type="text" placeholder="Search items..." class="inventory-search">
+        <div class="recommendations-container">
+            <div class="recommendation-section">
+                <div class="section-header">
+                    <i class="fas fa-star section-icon"></i>
+                    <h2>Use Soon-to-Expire Ingredients</h2>
                 </div>
-                <div class="sort-dropdown">
-                    <button class="sort-button">Sort by: Date Added</button>
+                <p class="section-description">Recipes that help you use ingredients that will expired soon</p>
+    
+                <div class="recipe-cards">
+                    <div class="recipe-cards" id="recipe-list">
+                        <!-- Recipes will be inserted here by JavaScript -->
+                    </div>
                 </div>
-            </div>
-
-            <div class="category-tabs">
-                <button class="category-tab active" data-category="all">All Item</button>
-                <button class="category-tab" data-category="dairy">Dairy</button>
-                <button class="category-tab" data-category="produce">Produce</button>
-                <button class="category-tab" data-category="meat">Meat</button>
-                <button class="category-tab" data-category="pentry">Pentry</button>
-            </div>
-
-            <div class="inventory-list">
             </div>
         </div>
     </main>
 
-    <div id="overlay" class="overlay">
-        <div class="modal">
-          <div class="modal-content">
-            <div class="modal-header">
-              <div class="modal-title">
-                <i class="fas fa-shopping-cart"></i>
-                <h2>Add New Item</h2>
-              </div>
-            </div>
-            <p class="modal-subtitle">Enter the details of the item you want to add to your inventory</p>
-            
-            <form id="add-item-form">
-              <div class="form-group">
-                <label for="item-name">Item</label>
-                <input type="text" id="item-name" placeholder="Value" required>
-              </div>
-              
-              <div class="form-group">
-                <label for="item-category">Category</label>
-                <input type="text" id="item-category" required>
-              </div>            
-              
-              <div class="form-group">
-                <label for="item-quantity">Quantity</label>
-                <input type="text" id="item-quantity" placeholder="Value" required>
-              </div>
-              
-              <div class="form-group">
-                <label for="item-expiry">Expiry Date</label>
-                <div class="date-input">
-                  <i class="far fa-calendar"></i>
-                  <input type="text" id="item-expiry" placeholder="Select Date" required readonly>
-                </div>
-              </div>
-              
-              <p class="additional-info">//รอAdd ข้อมูลเพิ่มเติมตามความจำเป็นคับ</p>
-              
-              <div class="form-actions">
-                <button type="button" id="cancel-btn" class="cancel-btn">Cancel</button>
-                <button type="submit" class="save-btn">Save</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <div id="edit-overlay" class="overlay">
-        <div class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="modal-title">
-                        <i class="fas fa-edit"></i>
-                        <h2>Edit Item</h2>
-                    </div>
-                </div>
-                <form id="edit-item-form">
-                    <div class="form-group">
-                        <label for="edit-item-name">Item</label>
-                        <input type="text" id="edit-item-name" required>
-                    </div>
-    
-                    <div class="form-group">
-                        <label for="edit-item-category">Category</label>
-                        <select id="edit-item-category" required>
-                            <option value="">Select Category</option>
-                            <option value="Dairy">Dairy</option>
-                            <option value="Produce">Produce</option>
-                            <option value="Meat">Meat</option>
-                            <option value="Pantry">Pantry</option>
-                        </select>
-                    </div>                    
-    
-                    <div class="form-group">
-                        <label for="edit-item-quantity">Quantity</label>
-                        <input type="text" id="edit-item-quantity" required>
-                    </div>
-    
-                    <div class="form-group">
-                        <label for="edit-item-expiry">Expiry Date</label>
-                        <input type="text" id="edit-item-expiry" required>
-                    </div>
-    
-                    <div class="form-actions">
-                        <button type="button" id="edit-cancel-btn" class="cancel-btn">Cancel</button>
-                        <button type="submit" class="save-btn">Save</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    
     <!-- เพิ่ม script tag สำหรับ API Service ก่อนไฟล์ JavaScript อื่นๆ -->
-    <script src="./js/MockInventory.js"></script>
-    <script src="./js/inventory.js"></script>
+    <script src="./js/MockRecom.js"></script>
+    <script src="./js/RecipeRecom.js"></script>
     <script src="./js/dropdown.js"></script>
 </body>
-</html>
+</html> 
