@@ -1,6 +1,10 @@
 let dynamicCategories = [];
 
 document.addEventListener('DOMContentLoaded', async function() {
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", logout);
+    }
     try {
         await loadInventoryData();
     } catch (error) {
@@ -369,9 +373,7 @@ function showToast(message) {
     }, 3000);
 }
 
-// ****** LOGOUT *******
-document.getElementById("logout-btn").addEventListener("click", () => {
+function logout() {
     localStorage.removeItem("userId");
-
     window.location.href = "login.html";
-});
+}

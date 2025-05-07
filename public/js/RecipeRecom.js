@@ -1,4 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", logout);
+    }
     const recipeContainer = document.getElementById("recipe-list");
 
     const inventoryData = await window.BiteBrightAPI.getInventoryItems();
@@ -71,9 +75,7 @@ function getDateWithoutTime(date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-// ****** LOGOUT *******
-document.getElementById("logout-btn").addEventListener("click", () => {
+function logout() {
     localStorage.removeItem("userId");
-
     window.location.href = "login.html";
-});
+}
