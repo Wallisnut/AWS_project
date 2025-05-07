@@ -15,7 +15,7 @@ function signup() {
     }
 
     //backend (เปลี่ยน URL API)
-    fetch('http://localhost:8080/api/signup', {
+    fetch('https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/register', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

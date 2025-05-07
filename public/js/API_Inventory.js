@@ -25,8 +25,11 @@ window.BiteBrightAPI.getInventoryItems = async function () {
 
     const result = await response.json();
 
+    // ตรวจสอบว่า result เป็น array หรือไม่
+    const items = Array.isArray(result) ? result : (result.items || []);
+
     const categories = {};
-    result.forEach(item => {
+    items.forEach(item => {
         if (!categories[item.category]) categories[item.category] = [];
         categories[item.category].push(item);
     });
@@ -94,3 +97,16 @@ window.BiteBrightAPI.getRecommendedRecipes = async function () {
 
     return response.json();
 };
+
+// window.BiteBrightAPI.getRecipes = async function () {
+//     const userId = localStorage.getItem("userId");
+//     if (!userId) throw new Error("No userId found. Please login first.");
+
+//     const response = await fetch(`https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients/recommendMenu?userId=${userId}`, {
+//         method: "GET",
+//     });
+
+//     if (!response.ok) throw new Error("Failed to fetch recommended recipes.");
+
+//     return response.json();
+// };

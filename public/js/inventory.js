@@ -368,3 +368,10 @@ function showToast(message) {
         }, 500);
     }, 3000);
 }
+
+// ****** LOGOUT *******
+document.getElementById("logout-btn").addEventListener("click", () => {
+    localStorage.removeItem("userId");
+
+    window.location.href = "login.html";
+});

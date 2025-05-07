@@ -7,7 +7,7 @@ function login() {
         return;
     }
 
-    fetch('https://api.example.com/login', { // <-- เปลี่ยน URL เป็นของจริงที่ backend ให้
+    fetch('https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/login', { // <-- เปลี่ยน URL เป็นของจริงที่ backend ให้
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const recipeContainer = document.getElementById("recipe-list");
 
     const inventoryData = await window.BiteBrightAPI.getInventoryItems();
-    const recipes = await window.BiteBrightAPI.getRecipes();
+    const recipes = await window.BiteBrightAPI.getRecommendedRecipes();
 
     // เตรียม list ของวัตถุดิบที่ไม่หมดอายุ
     const availableIngredients = [];
@@ -70,3 +70,10 @@ function parseDate(dateStr) {
 function getDateWithoutTime(date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
+
+// ****** LOGOUT *******
+document.getElementById("logout-btn").addEventListener("click", () => {
+    localStorage.removeItem("userId");
+
+    window.location.href = "login.html";
+});
