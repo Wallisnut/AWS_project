@@ -1,4 +1,11 @@
 # AWS_project
+
+## register
+- https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/register
+- post
+## login post
+- https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/login
+- post
 ## จัดการวัตถุดิบ (รับเป็น event.json)
 - https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients
   -  add ingredient (post)
@@ -27,3 +34,6 @@
 ## แนะนำเมนู
 - https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients/recommendMenu
   - get
+## line notification
+- https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/webhook
+- post
