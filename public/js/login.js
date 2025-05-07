@@ -7,8 +7,7 @@ function login() {
         return;
     }
 
-    //backend (เปลี่ยน URL )
-    fetch('http://localhost:8080/api/login', {
+    fetch('https://api.example.com/login', { // <-- เปลี่ยน URL เป็นของจริงที่ backend ให้
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -25,8 +24,17 @@ function login() {
         return response.json();
     })
     .then(data => {
+
+        const userId = data.userId;
+
+        if (!userId) {
+            throw new Error("No userId returned from server");
+        }
+
+        localStorage.setItem("userId", userId);
+
         alert("Login success!");
-        window.location.href = "inventory.html"; //รอหน้า Home เสร็จเปลัี่ยนเป็น Home
+        window.location.href = "Homepage.html";
     })
     .catch(error => {
         alert(error.message);

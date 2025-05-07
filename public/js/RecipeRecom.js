@@ -19,14 +19,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     const renderRecipeCard = (recipe) => {
         const recipeDiv = document.createElement("div");
         recipeDiv.className = "recipe-card";
-    
+
+        const imageUrl = recipe.imageUrl || '';
+        const cookingTime = recipe.time || "-";
+
         recipeDiv.innerHTML = `
-            <div class="recipe-image" style="background-image: url('${recipe.imageUrl || ''}')">
+            <div class="recipe-image" style="background-image: url('${imageUrl}')">
                 <h4>${recipe.name}</h4>
             </div>
             <div class="recipe-details">
                 <div class="recipe-time">
-                    <i class="far fa-clock"></i> ${recipe.cookingTime}
+                    <i class="far fa-clock"></i> ${cookingTime}
                 </div>
                 <div class="recipe-ingredients">
                     <p>Ingredients :</p>
@@ -35,16 +38,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <button class="view-recipe-btn">View Recipe</button>
             </div>
         `;
-    
+
         // เมื่อกดปุ่ม View Recipe
         const viewButton = recipeDiv.querySelector(".view-recipe-btn");
         viewButton.addEventListener("click", () => {
             // เปลี่ยนหน้านี้ไปยัง recipe-detail.html โดยส่ง id recipe ไปด้วย
             window.location.href = `recipe-detail.html?id=${recipe.id}`;
         });
-    
+
         recipeContainer.appendChild(recipeDiv);
-    };    
+    };
 
     // กรองเฉพาะเมนูที่วัตถุดิบครบเท่านั้น
     recipes.forEach(recipe => {

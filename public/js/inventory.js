@@ -158,14 +158,11 @@ function updateInventoryList(data) {
 function updateCategoryTabs(data) {
     const categoryTabsContainer = document.querySelector('.category-tabs');
 
-    // ดึงหมวดหมู่จาก data
     const categories = Object.keys(data.categories);
     dynamicCategories = categories;
 
-    // ล้างปุ่มเก่า
     categoryTabsContainer.innerHTML = '';
 
-    // ปุ่ม All
     const totalCount = Object.values(data.categories).flat().length;
     const allBtn = document.createElement('button');
     allBtn.className = 'category-tab active';
@@ -173,7 +170,6 @@ function updateCategoryTabs(data) {
     allBtn.innerText = `All Item (${totalCount})`;
     categoryTabsContainer.appendChild(allBtn);
 
-    // ปุ่มตามหมวดหมู่จริง
     categories.forEach(category => {
         const count = data.categories[category].length;
         const btn = document.createElement('button');
@@ -208,22 +204,30 @@ function updateCategoryDropdowns() {
     });
 }
 
-// การคลิกเลือกหมวดหมู่
 function setupCategoryTabs() {
     const categoryTabs = document.querySelectorAll('.category-tab');
 
     categoryTabs.forEach(tab => {
-        tab.addEventListener('click', async function() {
+        tab.addEventListener('click', async function () {
             categoryTabs.forEach(t => t.classList.remove('active'));
             this.classList.add('active');
 
-            const category = this.dataset.category;
+            const selectedCategory = this.dataset.category;
 
             try {
-                showToast(`Loading ${category} items...`);
-                const filteredData = await window.BiteBrightAPI.getInventoryItemsByCategory(category);
-                updateInventoryList(filteredData);
-                updateCategoryTabs(allInventoryData);
+                showToast(`Loading ${selectedCategory} items...`);
+                const inventoryData = await window.BiteBrightAPI.getInventoryItems();
+
+                if (selectedCategory === "all") {
+                    updateInventoryList(inventoryData);
+                } else {
+                    const filtered = {};
+                    const foundCategory = Object.keys(inventoryData.categories).find(cat => cat.toLowerCase() === selectedCategory);
+                    if (foundCategory) {
+                        filtered[foundCategory] = inventoryData.categories[foundCategory];
+                    }
+                    updateInventoryList({ categories: filtered });
+                }
             } catch (error) {
                 console.error('Failed to filter inventory:', error);
                 showToast('Failed to filter inventory. Please try again.');
@@ -232,7 +236,7 @@ function setupCategoryTabs() {
     });
 }
 
-// Serch Inventory
+// Search
 function setupSearchFilter() {
     const searchInput = document.querySelector('.inventory-search');
 
@@ -245,17 +249,17 @@ function setupSearchFilter() {
 
         items.forEach(item => {
             const itemName = item.querySelector('.item-name').textContent.toLowerCase();
-            
+
             if (itemName.includes(searchText)) {
-                item.style.display = ''; // แสดง
+                item.style.display = '';
             } else {
-                item.style.display = 'none'; // ซ่อน
+                item.style.display = 'none';
             }
         });
     });
 }
 
-// ปุ่ม Edit
+// Edit Item (Mock)
 function setupEditButtons() {
     const editButtons = document.querySelectorAll('.edit-btn');
 
@@ -273,7 +277,6 @@ function handleEditButtonClick(event) {
         const editOverlay = document.getElementById("edit-overlay");
         const editForm = document.getElementById("edit-item-form");
 
-        // ดึงข้อมูลจาก item ที่เลือก
         const itemName = inventoryItem.querySelector('.item-name').textContent;
         const itemQuantity = inventoryItem.querySelector('.item-quantity').textContent;
         const expiryText = inventoryItem.querySelector('.item-expiry').textContent;
@@ -282,23 +285,19 @@ function handleEditButtonClick(event) {
         const categorySection = inventoryItem.closest('.category-section');
         const categoryName = categorySection ? categorySection.querySelector('.category-title').textContent : '';
 
-        // ใส่ข้อมูลลงฟอร์ม
         document.getElementById("edit-item-name").value = itemName;
         document.getElementById("edit-item-category").value = categoryName;
         document.getElementById("edit-item-quantity").value = itemQuantity;
         document.getElementById("edit-item-expiry").value = expiryDate;
 
-        // เปิด overlay
         editOverlay.classList.add("active");
         document.body.style.overflow = "hidden";
 
-        // ปิด overlay
         document.getElementById("edit-cancel-btn").onclick = () => {
             editOverlay.classList.remove("active");
             document.body.style.overflow = "";
         };
 
-        // เมื่อ submit
         editForm.onsubmit = (e) => {
             e.preventDefault();
             showToast("Item updated (mock only)");
@@ -308,15 +307,15 @@ function handleEditButtonClick(event) {
     }
 }
 
-// Class expiry
+// Date Utilities
 function parseDate(dateStr) {
     const [day, month, year] = dateStr.split('/').map(Number);
     const realYear = year >= 2500 ? year - 543 : year;
-    return new Date(Date.UTC(realYear, month - 1, day));
+    return new Date(realYear, month - 1, day);
 }
 
 function getDateWithoutTime(date) {
-    return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
 function getExpiryClass(dateStr) {
@@ -338,17 +337,12 @@ function getExpiryText(dateStr) {
 
     if (diffDays < 0) return `Expired on ${dateStr}`;
     if (diffDays === 0) return `Expires: Today ${dateStr}`;
-    if (diffDays <= 4) return `Expires: In ${diffDays} day(s) ${dateStr}`;
-    if (diffDays <= 7) return `Expires: In ${diffDays} day(s) ${dateStr}`;
     return `Expires: In ${diffDays} day(s) ${dateStr}`;
 }
 
-// Toast Notification
 function showToast(message) {
     const existingToast = document.querySelector('.toast');
-    if (existingToast) {
-        existingToast.remove();
-    }
+    if (existingToast) existingToast.remove();
 
     const toast = document.createElement('div');
     toast.className = 'toast';
