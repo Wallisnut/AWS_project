@@ -1,26 +1,31 @@
 /**
  * BiteBright API Service
  * 
- * This file contains mock API functions that will be replaced with actual API calls
- * when the backend is developed. Frontend developers can use these functions as-is,
- * and backend developers can implement the actual API endpoints with the same
- * request/response structure.
+ * ไฟล์นี้มี mock API functions ที่จะถูกแทนที่ด้วย API calls จริงเมื่อรวมกับ backend
+ * Frontend developers สามารถใช้ฟังก์ชันเหล่านี้ได้เลย และ backend developers
+ * สามารถพัฒนา API endpoints ที่มีโครงสร้าง request/response เดียวกันนี้
  */
 
-const API_BASE_URL = 'https://api.bitebright.com/v1'; // Will be replaced with actual API URL
+const API_BASE_URL = 'https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright'; // URL จริงของ API
+
+// ข้อมูลผู้ใช้ปัจจุบัน (จะถูกเก็บใน localStorage ในแอพจริง)
+let currentUser = {
+    userId: null,
+    username: null
+};
 
 /**
- * Generic API request function with error handling
+ * ฟังก์ชัน API request ทั่วไปพร้อมการจัดการข้อผิดพลาด
  * @param {string} endpoint - API endpoint
  * @param {Object} options - Fetch options
  * @returns {Promise<any>} - Response data
  */
 async function apiRequest(endpoint, options = {}) {
-    // In production, this would be a real API call
-    // For now, we'll simulate network delay
+    // ในการใช้งานจริง นี่จะเป็น API call จริงๆ
+    // สำหรับตอนนี้ เราจะจำลองความล่าช้าของเครือข่าย
     const mockDelay = Math.random() * 300 + 200; // 200-500ms delay
     
-    // Set default headers
+    // ตั้งค่า headers เริ่มต้น
     const defaultOptions = {
         headers: {
             'Content-Type': 'application/json',
@@ -31,13 +36,13 @@ async function apiRequest(endpoint, options = {}) {
     const requestOptions = { ...defaultOptions, ...options };
     
     try {
-        // In a real implementation, this would be:
+        // ในการใช้งานจริง นี่จะเป็น:
         // const response = await fetch(`${API_BASE_URL}${endpoint}`, requestOptions);
         
-        // For mock implementation, we'll simulate the response
+        // สำหรับการจำลอง เราจะจำลองการตอบกลับ
         await new Promise(resolve => setTimeout(resolve, mockDelay));
         
-        // Check if we have mock data for this endpoint
+        // ตรวจสอบว่าเรามีข้อมูลจำลองสำหรับ endpoint นี้หรือไม่
         const mockResponse = getMockResponse(endpoint, requestOptions);
         
         if (mockResponse.error) {
@@ -52,7 +57,7 @@ async function apiRequest(endpoint, options = {}) {
 }
 
 /**
- * Get auth token from localStorage
+ * รับ auth token จาก localStorage
  * @returns {string} - Auth token
  */
 function getAuthToken() {
@@ -60,52 +65,84 @@ function getAuthToken() {
 }
 
 /**
- * Generate mock response based on endpoint and request
+ * สร้างการตอบกลับจำลองตาม endpoint และ request
  * @param {string} endpoint - API endpoint
  * @param {Object} options - Request options
  * @returns {Object} - Mock response
  */
 function getMockResponse(endpoint, options) {
-    // Mock data for different endpoints
+    // ข้อมูลจำลองสำหรับ endpoints ต่างๆ
     const mockData = {
-        // Inventory endpoints
-        '/inventory/expiring': {
+        // User endpoints
+        '/login': {
+            data: {
+                userId: 'user123',
+                username: 'Sudlhor'
+            }
+        },
+        '/register': {
+            data: {
+                message: 'Signup successful.',
+                userId: 'user123'
+            }
+        },
+        
+        // Ingredients endpoints
+        '/ingredients': {
             data: [
                 {
-                    id: 1,
+                    userId: 'user123',
+                    ingredientId: '1',
                     name: 'Tomatoes',
-                    quantity: '500g',
+                    quantity: 500,
+                    expiryDate: getTodayDate()
+                },
+                {
+                    userId: 'user123',
+                    ingredientId: '2',
+                    name: 'Chicken Breast',
+                    quantity: 2,
+                    expiryDate: getDateOffset(2)
+                },
+                {
+                    userId: 'user123',
+                    ingredientId: '3',
+                    name: 'Milk',
+                    quantity: 1,
+                    expiryDate: getDateOffset(4)
+                },
+                {
+                    userId: 'user123',
+                    ingredientId: '4',
+                    name: 'Eggs',
+                    quantity: 6,
+                    expiryDate: getDateOffset(7)
+                }
+            ]
+        },
+        '/ingredients/checkexpiring': {
+            data: [
+                {
+                    userId: 'user123',
+                    ingredientId: '1',
+                    name: 'Tomatoes',
+                    quantity: 500,
                     expiryDate: getTodayDate(),
                     category: 'Vegetables',
                     imageUrl: '/img/tomato.jpg'
                 },
                 {
-                    id: 2,
+                    userId: 'user123',
+                    ingredientId: '2',
                     name: 'Chicken Breast',
-                    quantity: '2 pieces',
+                    quantity: 2,
                     expiryDate: getDateOffset(2),
                     category: 'Meat',
                     imageUrl: '/img/chicken.jpg'
-                },
-                {
-                    id: 3,
-                    name: 'Milk',
-                    quantity: '1 liter',
-                    expiryDate: getDateOffset(4),
-                    category: 'Dairy',
-                    imageUrl: '/img/milk.jpg'
-                },
-                {
-                    id: 4,
-                    name: 'Eggs',
-                    quantity: '6 pieces',
-                    expiryDate: getDateOffset(7),
-                    category: 'Dairy',
-                    imageUrl: '/img/eggs.jpg'
                 }
             ]
         },
-        '/inventory/summary': {
+        '/ingredients/summary': {
             data: {
                 totalItems: 24,
                 categories: 8,
@@ -137,7 +174,7 @@ function getMockResponse(endpoint, options) {
                 }
             ]
         },
-        '/recipes/suggestions': {
+        '/ingredients/recommendMenu': {
             data: [
                 {
                     id: 1,
@@ -164,38 +201,82 @@ function getMockResponse(endpoint, options) {
         }
     };
     
-    // Handle POST requests
+    // จัดการกับ POST requests
     if (options.method === 'POST') {
-        if (endpoint === '/inventory/items') {
-            // Mock adding a new item
+        if (endpoint === '/login') {
+            // จำลองการเข้าสู่ระบบ
+            const body = JSON.parse(options.body);
+            if (body.username === 'Sudlhor' && body.password === 'password') {
+                currentUser = {
+                    userId: 'user123',
+                    username: 'Sudlhor'
+                };
+                localStorage.setItem('userId', currentUser.userId);
+                localStorage.setItem('username', currentUser.username);
+                return {
+                    data: {
+                        userId: currentUser.userId,
+                        username: currentUser.username
+                    }
+                };
+            } else {
+                return { error: 'Invalid username or password' };
+            }
+        }
+        
+        if (endpoint === '/register') {
+            // จำลองการลงทะเบียน
+            const body = JSON.parse(options.body);
+            if (!body.username || !body.email || !body.password) {
+                return { error: 'All fields are required' };
+            }
+            currentUser = {
+                userId: 'user123',
+                username: body.username
+            };
+            localStorage.setItem('userId', currentUser.userId);
+            localStorage.setItem('username', currentUser.username);
+            return {
+                data: {
+                    message: 'Signup successful.',
+                    userId: currentUser.userId
+                }
+            };
+        }
+        
+        if (endpoint === '/ingredients') {
+            // จำลองการเพิ่มวัตถุดิบใหม่
             const newItem = JSON.parse(options.body);
             return {
                 data: {
-                    id: Math.floor(Math.random() * 1000) + 100,
+                    userId: currentUser.userId || 'user123',
+                    ingredientId: Date.now().toString(),
                     ...newItem,
                     createdAt: new Date().toISOString()
                 }
             };
         }
-        
-        if (endpoint === '/notifications/mark-read') {
-            // Mock marking notifications as read
+    }
+    
+    // จัดการกับ DELETE requests
+    if (options.method === 'DELETE') {
+        if (endpoint === '/ingredients') {
+            // จำลองการลบวัตถุดิบ
             return {
                 data: {
-                    success: true,
-                    message: 'Notifications marked as read'
+                    message: 'Ingredient deleted successfully'
                 }
             };
         }
     }
     
-    // Return mock data for the endpoint or 404
+    // ส่งคืนข้อมูลจำลองสำหรับ endpoint หรือ 404
     return mockData[endpoint] || { error: 'Endpoint not found' };
 }
 
 /**
- * Get today's date in dd/mm/yyyy format
- * @returns {string} - Formatted date
+ * รับวันที่ปัจจุบันในรูปแบบ dd/mm/yyyy
+ * @returns {string} - วันที่ที่จัดรูปแบบแล้ว
  */
 function getTodayDate() {
     const today = new Date();
@@ -203,9 +284,9 @@ function getTodayDate() {
 }
 
 /**
- * Get date with offset in dd/mm/yyyy format
- * @param {number} days - Days to add
- * @returns {string} - Formatted date
+ * รับวันที่ที่มีการเลื่อนในรูปแบบ dd/mm/yyyy
+ * @param {number} days - จำนวนวันที่จะเพิ่ม
+ * @returns {string} - วันที่ที่จัดรูปแบบแล้ว
  */
 function getDateOffset(days) {
     const date = new Date();
@@ -214,9 +295,9 @@ function getDateOffset(days) {
 }
 
 /**
- * Format date as dd/mm/yyyy
- * @param {Date} date - Date to format
- * @returns {string} - Formatted date
+ * จัดรูปแบบวันที่เป็น dd/mm/yyyy
+ * @param {Date} date - วันที่ที่จะจัดรูปแบบ
+ * @returns {string} - วันที่ที่จัดรูปแบบแล้ว
  */
 function formatDate(date) {
     const day = String(date.getDate()).padStart(2, '0');
@@ -230,32 +311,69 @@ function formatDate(date) {
 // ============================================================================
 
 /**
- * Get items that are expiring soon
- * @returns {Promise<Array>} - List of expiring items
+ * ลงทะเบียนผู้ใช้ใหม่
+ * @param {Object} userData - ข้อมูลผู้ใช้
+ * @returns {Promise<Object>} - ข้อมูลผู้ใช้ที่สร้างขึ้น
+ */
+async function register(userData) {
+    return apiRequest('/register', {
+        method: 'POST',
+        body: JSON.stringify(userData)
+    });
+}
+
+/**
+ * เข้าสู่ระบบ
+ * @param {string} username - ชื่อผู้ใช้
+ * @param {string} password - รหัสผ่าน
+ * @returns {Promise<Object>} - ข้อมูลผู้ใช้
+ */
+async function login(username, password) {
+    return apiRequest('/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, password })
+    });
+}
+
+/**
+ * ออกจากระบบ
+ * @returns {Promise<Object>} - ข้อความยืนยัน
+ */
+async function logout() {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
+    localStorage.removeItem('authToken');
+    currentUser = { userId: null, username: null };
+    return { success: true, message: 'Logged out successfully' };
+}
+
+/**
+ * รับวัตถุดิบที่กำลังจะหมดอายุ
+ * @returns {Promise<Array>} - รายการวัตถุดิบที่กำลังจะหมดอายุ
  */
 async function getExpiringItems() {
-    return apiRequest('/inventory/expiring');
+    return apiRequest('/ingredients/checkexpiring');
 }
 
 /**
- * Get inventory summary
- * @returns {Promise<Object>} - Inventory summary
+ * รับข้อมูลสรุปของวัตถุดิบ
+ * @returns {Promise<Object>} - ข้อมูลสรุปของวัตถุดิบ
  */
 async function getInventorySummary() {
-    return apiRequest('/inventory/summary');
+    return apiRequest('/ingredients/summary');
 }
 
 /**
- * Get user notifications
- * @returns {Promise<Array>} - List of notifications
+ * รับการแจ้งเตือนของผู้ใช้
+ * @returns {Promise<Array>} - รายการการแจ้งเตือน
  */
 async function getNotifications() {
     return apiRequest('/notifications');
 }
 
 /**
- * Mark all notifications as read
- * @returns {Promise<Object>} - Success response
+ * ทำเครื่องหมายการแจ้งเตือนทั้งหมดว่าอ่านแล้ว
+ * @returns {Promise<Object>} - การตอบสนองสำเร็จ
  */
 async function markAllNotificationsAsRead() {
     return apiRequest('/notifications/mark-read', {
@@ -265,9 +383,9 @@ async function markAllNotificationsAsRead() {
 }
 
 /**
- * Mark a specific notification as read
- * @param {number} notificationId - ID of the notification
- * @returns {Promise<Object>} - Success response
+ * ทำเครื่องหมายการแจ้งเตือนเฉพาะว่าอ่านแล้ว
+ * @param {number} notificationId - ID ของการแจ้งเตือน
+ * @returns {Promise<Object>} - การตอบสนองสำเร็จ
  */
 async function markNotificationAsRead(notificationId) {
     return apiRequest('/notifications/mark-read', {
@@ -277,32 +395,68 @@ async function markNotificationAsRead(notificationId) {
 }
 
 /**
- * Add a new item to inventory
- * @param {Object} item - Item data
- * @returns {Promise<Object>} - Created item
+ * เพิ่มวัตถุดิบใหม่ลงในคลัง
+ * @param {Object} item - ข้อมูลวัตถุดิบ
+ * @returns {Promise<Object>} - วัตถุดิบที่สร้างขึ้น
  */
 async function addInventoryItem(item) {
-    return apiRequest('/inventory/items', {
+    const userId = localStorage.getItem('userId') || 'user123';
+    return apiRequest('/ingredients', {
         method: 'POST',
-        body: JSON.stringify(item)
+        body: JSON.stringify({
+            userId,
+            name: item.name,
+            quantity: item.quantity,
+            expiryDate: item.expiryDate
+        })
     });
 }
 
 /**
- * Get recipe suggestions based on inventory
- * @returns {Promise<Array>} - List of recipe suggestions
+ * รับวัตถุดิบทั้งหมดของผู้ใช้
+ * @returns {Promise<Array>} - รายการวัตถุดิบ
  */
-async function getRecipeSuggestions() {
-    return apiRequest('/recipes/suggestions');
+async function getAllIngredients() {
+    const userId = localStorage.getItem('userId') || 'user123';
+    return apiRequest('/ingredients', {
+        method: 'GET',
+        body: JSON.stringify({ userId })
+    });
 }
 
-// Export all API functions
+/**
+ * ลบวัตถุดิบ
+ * @param {string} ingredientId - ID ของวัตถุดิบ
+ * @returns {Promise<Object>} - การตอบสนองสำเร็จ
+ */
+async function deleteIngredient(ingredientId) {
+    const userId = localStorage.getItem('userId') || 'user123';
+    return apiRequest('/ingredients', {
+        method: 'DELETE',
+        body: JSON.stringify({ userId, ingredientId })
+    });
+}
+
+/**
+ * รับคำแนะนำเมนูอาหารตามวัตถุดิบ
+ * @returns {Promise<Array>} - รายการคำแนะนำเมนูอาหาร
+ */
+async function getRecipeSuggestions() {
+    return apiRequest('/ingredients/recommendMenu');
+}
+
+// ส่งออกฟังก์ชัน API ทั้งหมด
 window.BiteBrightAPI = {
+    register,
+    login,
+    logout,
     getExpiringItems,
     getInventorySummary,
     getNotifications,
     markAllNotificationsAsRead,
     markNotificationAsRead,
     addInventoryItem,
+    getAllIngredients,
+    deleteIngredient,
     getRecipeSuggestions
 };

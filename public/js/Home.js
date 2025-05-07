@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', async function() {
-    // Load data from API
+    // ตรวจสอบการเข้าสู่ระบบ
+    checkLogin();
+    
+    // โหลดข้อมูลจาก API
     try {
         await loadDashboardData();
     } catch (error) {
@@ -7,44 +10,44 @@ document.addEventListener('DOMContentLoaded', async function() {
         showToast('Failed to load data. Please try again later.');
     }
   
-    // Add Item button functionality
+    // ฟังก์ชันปุ่ม Add Item
     const addItemBtn = document.querySelector(".add-item-btn");
     const overlay = document.getElementById("overlay");
     const cancelBtn = document.getElementById("cancel-btn");
     const addItemForm = document.getElementById("add-item-form");
     const expiryDateInput = document.getElementById("item-expiry");
   
-    // Show overlay when Add Item button is clicked
+    // แสดง overlay เมื่อคลิกปุ่ม Add Item
     addItemBtn.addEventListener("click", () => {
         overlay.classList.add("active");
-        document.body.style.overflow = "hidden"; // Prevent scrolling when overlay is active
+        document.body.style.overflow = "hidden"; // ป้องกันการเลื่อนเมื่อ overlay ทำงาน
     });
   
-    // Hide overlay when Cancel button is clicked
+    // ซ่อน overlay เมื่อคลิกปุ่ม Cancel
     cancelBtn.addEventListener("click", () => {
         overlay.classList.remove("active");
-        document.body.style.overflow = ""; // Re-enable scrolling
+        document.body.style.overflow = ""; // เปิดใช้งานการเลื่อนอีกครั้ง
     });
   
-    // Hide overlay when clicking outside the modal
+    // ซ่อน overlay เมื่อคลิกนอกโมดัล
     overlay.addEventListener("click", (e) => {
         if (e.target === overlay) {
             overlay.classList.remove("active");
-            document.body.style.overflow = ""; // Re-enable scrolling
+            document.body.style.overflow = ""; // เปิดใช้งานการเลื่อนอีกครั้ง
         }
     });
   
-    // Handle form submission
+    // จัดการการส่งแบบฟอร์ม
     addItemForm.addEventListener("submit", async (e) => {
         e.preventDefault();
   
-        // Get form values
+        // รับค่าจากแบบฟอร์ม
         const itemName = document.getElementById("item-name").value;
         const itemCategory = document.getElementById("item-category").value;
         const itemQuantity = document.getElementById("item-quantity").value;
         const itemExpiry = document.getElementById("item-expiry").value;
   
-        // Create item object
+        // สร้างออบเจ็กต์วัตถุดิบ
         const newItem = {
             name: itemName,
             category: itemCategory,
@@ -53,40 +56,40 @@ document.addEventListener('DOMContentLoaded', async function() {
         };
   
         try {
-            // Show loading state
+            // แสดงสถานะการโหลด
             const saveBtn = addItemForm.querySelector('.save-btn');
             const originalText = saveBtn.textContent;
             saveBtn.textContent = 'Saving...';
             saveBtn.disabled = true;
   
-            // Call API to add item
+            // เรียก API เพื่อเพิ่มวัตถุดิบ
             const result = await window.BiteBrightAPI.addInventoryItem(newItem);
             
-            // Show success message
+            // แสดงข้อความสำเร็จ
             showToast(`Item "${itemName}" has been added to your inventory.`);
             
-            // Reset form and close overlay
+            // รีเซ็ตแบบฟอร์มและปิด overlay
             addItemForm.reset();
             overlay.classList.remove("active");
-            document.body.style.overflow = ""; // Re-enable scrolling
+            document.body.style.overflow = ""; // เปิดใช้งานการเลื่อนอีกครั้ง
             
-            // Reload dashboard data to show the new item
+            // โหลดข้อมูลแดชบอร์ดอีกครั้งเพื่อแสดงวัตถุดิบใหม่
             await loadDashboardData();
         } catch (error) {
             console.error('Failed to add item:', error);
             showToast('Failed to add item. Please try again.');
         } finally {
-            // Reset button state
+            // รีเซ็ตสถานะปุ่ม
             const saveBtn = addItemForm.querySelector('.save-btn');
             saveBtn.textContent = 'Save';
             saveBtn.disabled = false;
         }
     });
   
-    // Simple date picker functionality
+    // ฟังก์ชันตัวเลือกวันที่อย่างง่าย
     expiryDateInput.addEventListener("click", () => {
-        // In a real application, you would use a proper date picker library
-        // For this example, we'll use a simple prompt
+        // ในแอปพลิเคชันจริง คุณจะใช้ไลบรารีตัวเลือกวันที่ที่เหมาะสม
+        // สำหรับตัวอย่างนี้ เราจะใช้ prompt อย่างง่าย
         const today = new Date();
         const day = String(today.getDate()).padStart(2, "0");
         const month = String(today.getMonth() + 1).padStart(2, "0");
@@ -99,59 +102,93 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     });
   
-    // View all expiring items
+    // ดูวัตถุดิบที่กำลังจะหมดอายุทั้งหมด
     const viewAllLink = document.querySelector('.view-all a');
     if (viewAllLink) {
         viewAllLink.addEventListener('click', function(e) {
             e.preventDefault();
             showToast('Viewing all expiring items');
-            // In a real app, this would navigate to a full list view
+            // ในแอปพลิเคชันจริง นี่จะนำทางไปยังมุมมองรายการเต็ม
         });
     }
   
-    // Explore more recipes
+    // สำรวจเมนูเพิ่มเติม
     const exploreMoreBtn = document.querySelector('.explore-more-btn');
     if (exploreMoreBtn) {
         exploreMoreBtn.addEventListener('click', async function() {
             showToast('Loading more recipes...');
-            // In a real app, this would load more recipes or navigate to a recipes page
+            // ในแอปพลิเคชันจริง นี่จะโหลดเมนูเพิ่มเติมหรือนำทางไปยังหน้าเมนู
         });
     }
-  });
-  
-  /**
-  * Load all dashboard data from APIs
-  */
-  async function loadDashboardData() {
-    // Load data in parallel for better performance
+});
+
+/**
+ * ตรวจสอบการเข้าสู่ระบบ
+ */
+function checkLogin() {
+    const userId = localStorage.getItem('userId');
+    const username = localStorage.getItem('username');
+    
+    if (!userId || !username) {
+        // ในแอปพลิเคชันจริง นี่จะนำทางไปยังหน้าเข้าสู่ระบบ
+        // window.location.href = 'login.html';
+        
+        // สำหรับการจำลอง เราจะตั้งค่าผู้ใช้เริ่มต้น
+        localStorage.setItem('userId', 'user123');
+        localStorage.setItem('username', 'Sudlhor');
+    }
+    
+    // อัปเดตชื่อผู้ใช้ในหน้า
+    const welcomeSection = document.querySelector('.welcome-section h2');
+    if (welcomeSection) {
+        welcomeSection.textContent = `Welcome back, ${username || 'Sudlhor'}!`;
+    }
+    
+    // อัปเดตข้อมูลผู้ใช้ในเมนูผู้ใช้
+    const userNameElement = document.querySelector('.user-name');
+    if (userNameElement) {
+        userNameElement.textContent = username || 'Sudlhor';
+    }
+    
+    const userEmailElement = document.querySelector('.user-email');
+    if (userEmailElement) {
+        userEmailElement.textContent = `${username || 'sudlhor'}@example.com`;
+    }
+}
+
+/**
+ * โหลดข้อมูลแดชบอร์ดทั้งหมดจาก API
+ */
+async function loadDashboardData() {
+    // โหลดข้อมูลแบบขนานเพื่อประสิทธิภาพที่ดีขึ้น
     const [expiringItems, inventorySummary, recipeSuggestions] = await Promise.all([
         window.BiteBrightAPI.getExpiringItems(),
         window.BiteBrightAPI.getInventorySummary(),
         window.BiteBrightAPI.getRecipeSuggestions()
     ]);
   
-    // Update expiring items section
+    // อัปเดตส่วนวัตถุดิบที่กำลังจะหมดอายุ
     updateExpiringItems(expiringItems);
     
-    // Update inventory summary
+    // อัปเดตข้อมูลสรุปคลัง
     updateInventorySummary(inventorySummary);
     
-    // Update recipe suggestions
+    // อัปเดตคำแนะนำเมนู
     updateRecipeSuggestions(recipeSuggestions);
-  }
-  
-  /**
-  * Update the expiring items section with data from API
-  * @param {Array} items - Expiring items from API
-  */
-  function updateExpiringItems(items) {
+}
+
+/**
+ * อัปเดตส่วนวัตถุดิบที่กำลังจะหมดอายุด้วยข้อมูลจาก API
+ * @param {Array} items - วัตถุดิบที่กำลังจะหมดอายุจาก API
+ */
+function updateExpiringItems(items) {
     const container = document.querySelector('.expiring-items');
     if (!container || !items || items.length === 0) return;
   
-    // Clear existing items
+    // ล้างวัตถุดิบที่มีอยู่
     container.innerHTML = '';
   
-    // Add items from API
+    // เพิ่มวัตถุดิบจาก API
     items.forEach(item => {
         const expiryClass = getExpiryClass(item.expiryDate);
         const expiryText = getExpiryText(item.expiryDate);
@@ -163,7 +200,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 <div class="item-image" style="${item.imageUrl ? `background-image: url(${item.imageUrl})` : ''}"></div>
                 <div class="item-details">
                     <p class="item-name">${item.name}</p>
-                    <p class="item-quantity">${item.quantity}</p>
+                    <p class="item-quantity">${item.quantity} ${item.unit || 'units'}</p>
                 </div>
             </div>
             <div class="expiry-tag ${expiryClass}">${expiryText}</div>
@@ -171,13 +208,13 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         container.appendChild(itemElement);
     });
-  }
-  
-  /**
-  * Update the inventory summary section with data from API
-  * @param {Object} summary - Inventory summary from API
-  */
-  function updateInventorySummary(summary) {
+}
+
+/**
+ * อัปเดตส่วนข้อมูลสรุปคลังด้วยข้อมูลจาก API
+ * @param {Object} summary - ข้อมูลสรุปคลังจาก API
+ */
+function updateInventorySummary(summary) {
     if (!summary) return;
     
     const totalItemsElement = document.querySelector('.summary-item:nth-child(1) .count');
@@ -187,20 +224,20 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (totalItemsElement) totalItemsElement.textContent = summary.totalItems;
     if (categoriesElement) categoriesElement.textContent = summary.categories;
     if (expiringThisWeekElement) expiringThisWeekElement.textContent = summary.expiringThisWeek;
-  }
-  
-  /**
-  * Update recipe suggestions with data from API
-  * @param {Array} recipes - Recipe suggestions from API
-  */
-  function updateRecipeSuggestions(recipes) {
+}
+
+/**
+ * อัปเดตคำแนะนำเมนูด้วยข้อมูลจาก API
+ * @param {Array} recipes - คำแนะนำเมนูจาก API
+ */
+function updateRecipeSuggestions(recipes) {
     const container = document.querySelector('.recipe-cards');
     if (!container || !recipes || recipes.length === 0) return;
     
-    // Clear existing recipes
+    // ล้างเมนูที่มีอยู่
     container.innerHTML = '';
     
-    // Add recipes from API
+    // เพิ่มเมนูจาก API
     recipes.forEach(recipe => {
         const recipeElement = document.createElement('div');
         recipeElement.className = 'recipe-card';
@@ -227,14 +264,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         container.appendChild(recipeElement);
     });
-  }
-  
-  /**
-  * Get CSS class for expiry tag based on date
-  * @param {string} dateStr - Date string in dd/mm/yyyy format
-  * @returns {string} - CSS class name
-  */
-  function getExpiryClass(dateStr) {
+}
+
+/**
+ * รับคลาส CSS สำหรับแท็กวันหมดอายุตามวันที่
+ * @param {string} dateStr - สตริงวันที่ในรูปแบบ dd/mm/yyyy
+ * @returns {string} - ชื่อคลาส CSS
+ */
+function getExpiryClass(dateStr) {
     const today = new Date();
     const expiryDate = parseDate(dateStr);
     
@@ -244,14 +281,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (diffDays <= 3) return 'expiry-soon';
     if (diffDays <= 6) return 'expiry-medium';
     return 'expiry-later';
-  }
-  
-  /**
-  * Get expiry text based on date
-  * @param {string} dateStr - Date string in dd/mm/yyyy format
-  * @returns {string} - Expiry text
-  */
-  function getExpiryText(dateStr) {
+}
+
+/**
+ * รับข้อความวันหมดอายุตามวันที่
+ * @param {string} dateStr - สตริงวันที่ในรูปแบบ dd/mm/yyyy
+ * @returns {string} - ข้อความวันหมดอายุ
+ */
+function getExpiryText(dateStr) {
     const today = new Date();
     const expiryDate = parseDate(dateStr);
     
@@ -261,38 +298,38 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (diffDays <= 3) return `Expires : 1-3 days (${dateStr})`;
     if (diffDays <= 6) return `Expires : 4+ day (${dateStr})`;
     return `Expires : 7+ day (${dateStr})`;
-  }
-  
-  /**
-  * Parse date from dd/mm/yyyy format
-  * @param {string} dateStr - Date string in dd/mm/yyyy format
-  * @returns {Date} - Date object
-  */
-  function parseDate(dateStr) {
+}
+
+/**
+ * แยกวิเคราะห์วันที่จากรูปแบบ dd/mm/yyyy
+ * @param {string} dateStr - สตริงวันที่ในรูปแบบ dd/mm/yyyy
+ * @returns {Date} - วัตถุวันที่
+ */
+function parseDate(dateStr) {
     const [day, month, year] = dateStr.split('/').map(Number);
     return new Date(year, month - 1, day);
-  }
-  
-  /**
-  * Show toast notification
-  * @param {string} message - Message to display
-  */
-  function showToast(message) {
-    // Check if a toast already exists and remove it
+}
+
+/**
+ * แสดงการแจ้งเตือนแบบ toast
+ * @param {string} message - ข้อความที่จะแสดง
+ */
+function showToast(message) {
+    // ตรวจสอบว่ามี toast อยู่แล้วและลบออก
     const existingToast = document.querySelector('.toast');
     if (existingToast) {
         existingToast.remove();
     }
     
-    // Create toast element
+    // สร้างองค์ประกอบ toast
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.textContent = message;
     
-    // Add to document
+    // เพิ่มลงในเอกสาร
     document.body.appendChild(toast);
     
-    // Remove after 3 seconds
+    // ลบหลังจาก 3 วินาที
     setTimeout(() => {
         toast.style.opacity = '0';
         
@@ -300,4 +337,4 @@ document.addEventListener('DOMContentLoaded', async function() {
             toast.remove();
         }, 500);
     }, 3000);
-  }
+}
