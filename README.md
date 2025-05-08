@@ -35,5 +35,5 @@
 - https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients/recommendMenu
   - get
 ## line notification
-- https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/webhook
+- https://m2j6dg2ede.execute-api.us-east-1.amazonaws.com/webhook 
 - post
