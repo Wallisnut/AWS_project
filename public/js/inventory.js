@@ -1,4 +1,19 @@
 let dynamicCategories = [];
+let currentSort = "expired";
+
+async function findExistingItem(name, category, expiryDate) {
+    const inventoryData = await window.BiteBrightAPI.getInventoryItems();
+
+    for (const items of Object.values(inventoryData.categories)) {
+        for (const item of items) {
+            if (item.name === name && item.category === category && item.expiryDate === expiryDate) {
+                return item;
+            }
+        }
+    }
+
+    return null;
+}
 
 document.addEventListener('DOMContentLoaded', async function() {
     setupLogout();
@@ -15,6 +30,25 @@ document.addEventListener('DOMContentLoaded', async function() {
     const cancelBtn = document.getElementById("cancel-btn");
     const addItemForm = document.getElementById("add-item-form");
     const expiryDateInput = document.getElementById("item-expiry");
+    const sortButton = document.querySelector(".sort-button");
+
+    if (sortButton) {
+    sortButton.addEventListener("click", () => {
+        if (currentSort === "expired") {
+            currentSort = "added";
+            sortButton.textContent = "Sort by: Date Added";
+        } else {
+            currentSort = "expired";
+            sortButton.textContent = "Sort by: Date Expired";
+        }
+
+        // Reload inventory after changing sort
+        loadInventoryData();
+    });
+
+    // Set default text
+    sortButton.textContent = "Sort by: Date Expired";
+    }
 
     if (addItemBtn) {
         addItemBtn.addEventListener("click", () => {
@@ -38,10 +72,92 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         });
     }
+    function validateForm() {
+        let isValid = true;
+
+        const itemNameInput = document.getElementById("item-name");
+        const itemCategoryInput = document.getElementById("item-category");
+        const itemQuantityInput = document.getElementById("item-quantity");
+        const itemExpiryInput = document.getElementById("item-expiry");
+        const itemImageInput = document.getElementById("item-image");
+
+        const inputs = [itemNameInput, itemCategoryInput, itemQuantityInput, itemExpiryInput];
+
+        inputs.forEach(input => {
+            input.classList.remove("input-error");
+            const error = input.nextElementSibling;
+            if (error && error.classList.contains("error-text")) {
+                error.remove();
+            }
+        });
+
+        // Check empty
+        inputs.forEach(input => {
+        if (!input.value.trim()) {
+            isValid = false;
+            input.classList.add("input-error");
+
+            const errorText = document.createElement("div");
+            errorText.className = "error-text";
+            errorText.style.color = "red";
+            errorText.style.marginTop = "4px";
+            errorText.textContent = "This field is required.";
+            input.parentNode.appendChild(errorText);
+        }
+        });
+
+        // Check number only for quantity
+        if (itemQuantityInput.value && !/^\d+$/.test(itemQuantityInput.value)) {
+            isValid = false;
+            itemQuantityInput.classList.add("input-error");
+
+            const errorText = document.createElement("div");
+            errorText.className = "error-text";
+            errorText.style.color = "red";
+            errorText.style.marginTop = "4px";
+            errorText.textContent = "Quantity must be a number only.";
+            itemQuantityInput.parentNode.appendChild(errorText);
+        }
+
+        //  Check Image ว่าต้องเลือก
+        if (!itemImageInput.files || itemImageInput.files.length === 0) {
+            isValid = false;
+            itemImageInput.classList.add("input-error");
+
+            const errorText = document.createElement("div");
+            errorText.className = "error-text";
+            errorText.style.color = "red";
+            errorText.style.marginTop = "4px";
+            errorText.textContent = "Please select an image.";
+            itemImageInput.parentNode.appendChild(errorText);
+        }
+        return isValid;
+    }
+
+    // ฟังก์ชันนี้เพิ่มไว้เลยหลัง validateForm
+    function setupInputValidation() {
+        const inputs = document.querySelectorAll("#add-item-form input");
+
+        inputs.forEach(input => {
+            input.addEventListener("input", () => {
+                input.classList.remove("input-error");
+                const error = input.nextElementSibling;
+                if (error && error.classList.contains("error-text")) {
+                    error.remove();
+                }
+            });
+        });
+    }
+
 
     if (addItemForm) {
         addItemForm.addEventListener("submit", async (e) => {
             e.preventDefault();
+
+             //  เช็ค Validate ก่อน
+            if (!validateForm()) {
+                return; // หยุดเลยถ้าผิด
+            }
 
             const itemName = document.getElementById("item-name").value;
             const itemCategory = document.getElementById("item-category").value;
@@ -63,9 +179,24 @@ document.addEventListener('DOMContentLoaded', async function() {
                 saveBtn.textContent = 'Saving...';
                 saveBtn.disabled = true;
 
-                await window.BiteBrightAPI.addInventoryItem(newItem);
+                // เพิ่มตรงนี้ → เช็คก่อนว่าซ้ำมั้ย
+                const existingItem = await findExistingItem(itemName, itemCategory, itemExpiry);
 
-                showToast(`Item "${itemName}" has been added to your inventory.`);
+                if (existingItem) {
+                    const updatedQuantity = parseInt(existingItem.quantity) + parseInt(itemQuantity);
+
+                    await window.BiteBrightAPI.editInventoryItem(existingItem.ingredientId, {
+                        name: existingItem.name,
+                        category: existingItem.category,
+                        quantity: updatedQuantity,
+                        expiryDate: existingItem.expiryDate
+                    });
+
+                    showToast(`Item "${itemName}" already exists. Quantity updated to ${updatedQuantity}.`);
+                } else {
+                    await window.BiteBrightAPI.addInventoryItem(newItem);
+                    showToast(`Item "${itemName}" has been added to your inventory.`);
+                }
 
                 addItemForm.reset();
                 overlay.classList.remove("active");
@@ -102,6 +233,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     setupCategoryTabs();
     setupEditButtons();
     setupSearchFilter();
+    setupInputValidation();
 });
 
 // โหลดข้อมูล Inventory
@@ -116,7 +248,6 @@ async function loadInventoryData() {
     }
 }
 
-// แสดงรายการ inventory + หมวดหมู่
 function updateInventoryList(data) {
     if (!data || !data.categories) return;
 
@@ -125,9 +256,37 @@ function updateInventoryList(data) {
 
     inventoryList.innerHTML = '';
 
-    Object.entries(data.categories).forEach(([categoryName, items]) => {
-        if (!items || items.length === 0) return;
+    // รวม items ทั้งหมด
+    const allItems = [];
 
+    Object.entries(data.categories).forEach(([categoryName, items]) => {
+        items.forEach(item => {
+            allItems.push({
+                ...item,
+                _categoryName: categoryName // เก็บชื่อ category ไว้ด้วย
+            });
+        });
+    });
+
+    // Sort ตาม currentSort
+    if (currentSort === "expired") {
+        allItems.sort((a, b) => parseDate(a.expiryDate) - parseDate(b.expiryDate));
+    } else {
+        allItems.sort((a, b) => (a.ingredientId || "").localeCompare(b.ingredientId || ""));
+    }
+
+    // สร้าง group ตาม category อีกครั้ง
+    const grouped = {};
+
+    allItems.forEach(item => {
+        if (!grouped[item._categoryName]) {
+            grouped[item._categoryName] = [];
+        }
+        grouped[item._categoryName].push(item);
+    });
+
+    // Render
+    Object.entries(grouped).forEach(([categoryName, items]) => {
         const categorySection = document.createElement('div');
         categorySection.className = 'category-section';
         categorySection.innerHTML = `<h2 class="category-title">${categoryName}</h2>`;
@@ -162,6 +321,10 @@ function updateInventoryList(data) {
 // อัปเดตตัวเลขหมวดหมู่
 function updateCategoryTabs(data) {
     const categoryTabsContainer = document.querySelector('.category-tabs');
+    if (!categoryTabsContainer) {
+        console.warn('Category tabs container not found. Skipping updateCategoryTabs.');
+        return;
+    }
 
     const categories = Object.keys(data.categories);
     dynamicCategories = categories;
@@ -192,6 +355,7 @@ function updateCategoryDropdowns() {
     const dropdowns = [document.getElementById('item-category'), document.getElementById('edit-item-category')];
 
     dropdowns.forEach(dropdown => {
+        if (!dropdown) return;
         const selected = dropdown.value;
         dropdown.innerHTML = '<option value="">Select Category</option>';
 
@@ -250,21 +414,35 @@ function setupSearchFilter() {
     searchInput.addEventListener('input', () => {
         const searchText = searchInput.value.trim().toLowerCase();
 
-        const items = document.querySelectorAll('.inventory-item');
+        const categorySections = document.querySelectorAll('.category-section');
 
-        items.forEach(item => {
-            const itemName = item.querySelector('.item-name').textContent.toLowerCase();
+        categorySections.forEach(section => {
+            const items = section.querySelectorAll('.inventory-item');
 
-            if (itemName.includes(searchText)) {
-                item.style.display = '';
+            let hasVisibleItem = false;
+
+            items.forEach(item => {
+                const itemName = item.querySelector('.item-name').textContent.toLowerCase();
+
+                if (itemName.includes(searchText)) {
+                    item.style.display = '';
+                    hasVisibleItem = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // ✅ ซ่อน category เลยถ้าไม่มี item ที่ match
+            if (hasVisibleItem) {
+                section.style.display = '';
             } else {
-                item.style.display = 'none';
+                section.style.display = 'none';
             }
         });
     });
 }
 
-// Edit Item (Mock)
+// Edit Item
 function setupEditButtons() {
     const editButtons = document.querySelectorAll('.edit-btn');
 
@@ -314,7 +492,6 @@ function handleEditButtonClick(event) {
             };
         
             try {
-                // เรียก API PUT (ของจริง)
                 await window.BiteBrightAPI.editInventoryItem(itemId, updatedItem);
         
                 showToast("Item updated successfully");
@@ -322,7 +499,6 @@ function handleEditButtonClick(event) {
                 editOverlay.classList.remove("active");
                 document.body.style.overflow = "";
         
-                // โหลดข้อมูลใหม่หลังจากอัปเดตเสร็จ
                 await loadInventoryData();
             } catch (error) {
                 console.error("Failed to update item:", error);
@@ -330,8 +506,9 @@ function handleEditButtonClick(event) {
             }
         };
         
-    };
+    }
 }
+
 // Date Utilities
 function parseDate(dateStr) {
     const [day, month, year] = dateStr.split('/').map(Number);

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Detail - BiteBright</title>
+    <link rel="stylesheet" href="./css/Home.css">
+    <link rel="stylesheet" href="./css/dropdown.css">
+    <link rel="stylesheet" href="./css/recipe.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .loading { text-align: center; padding: 20px; font-size: 18px; color: #666; }
+        .error { text-align: center; padding: 20px; font-size: 18px; color: #d32f2f; }
+        .recipe-image-container img { width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; }
+        .favorite-btn { background: none; border: none; cursor: pointer; font-size: 24px; color: #ccc; }
+        .favorite-btn.active { color: #e91e63; }
+        ul.directions-list { 
+            list-style: none; 
+            padding-left: 0; 
+            counter-reset: step-counter; 
+        }
+        ul.directions-list li { 
+            position: relative; 
+            padding-left: 30px; 
+            margin-bottom: 10px; 
+        }
+        ul.directions-list li::before { 
+            counter-increment: step-counter; 
+            content: counter(step-counter) ". "; 
+            position: absolute; 
+            left: 0; 
+            color: #333; 
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1><span class="logo-bite">Bite</span><span class="logo-bright">Bright</span><span class="logo-icon">💡</span></h1>
+        </div>
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" placeholder="Search" class="search-input">
+            <button class="clear-search"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="header-icons">
+            <div class="notification-container">
+                <button class="icon-button notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+                <div class="notification-dropdown">
+                    <div class="dropdown-header">
+                        <h3>Notifications</h3>
+                        <button class="mark-all-read">Mark all as read</button>
+                    </div>
+                    <div class="notification-list">
+                        <div class="notification-item unread">
+                            <div class="notification-icon warning">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="notification-content">
+                                <p class="notification-text">Tomatoes are expiring today!</p>
+                                <p class="notification-time">Just now</p>
+                            </div>
+                        </div>
+                        <div class="notification-item unread">
+                            <div class="notification-icon info">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="notification-content">
+                                <p class="notification-text">New recipe suggestions available</p>
+                                <p class="notification-time">2 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="notification-item">
+                            <div class="notification-icon success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="notification-content">
+                                <p class="notification-text">Inventory updated successfully</p>
+                                <p class="notification-time">Yesterday</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown-footer">
+                        <a href="#">View all notifications</a>
+                    </div>
+                </div>
+            </div>
+            <div class="user-container">
+                <button class="icon-button user-btn">
+                    <i class="fas fa-user"></i>
+                </button>
+                <div class="user-dropdown">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="user-details">
+                            <p class="user-name">Sudlhor</p>
+                            <p class="user-email">sudlhor@example.com</p>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <ul class="dropdown-menu">
+                        <li><a href="#"><i class="fas fa-user-cog"></i> Profile Settings</a></li>
+                        <li><a href="#"><i class="fas fa-history"></i> Activity History</a></li>
+                        <li><a href="#"><i class="fas fa-heart"></i> Favorite Recipes</a></li>
+                    </ul>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-footer">
+                        <button class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="recipe-main">
+        <div class="recipe-container">
+            <div class="back-button">
+                <a href="Homepage.html"><i class="fas fa-chevron-left"></i></a>
+            </div>
+            <h1 class="recipe-title">Loading recipe...</h1>
+            
+            <div class="recipe-image-container">
+                <div class="loading">Loading recipe image...</div>
+            </div>
+            
+            <div class="recipe-level">
+                <span>Level: Easy</span>
+                <button class="favorite-btn" id="favoriteBtn">
+                    <i class="fas fa-heart"></i>
+                </button>
+            </div>
+            
+            <div class="recipe-content">
+                <div class="ingredients-section">
+                    <h2>Ingredients</h2>
+                    <ul class="ingredients-list">
+                        <li class="loading">Loading ingredients...</li>
+                    </ul>
+                </div>
+                
+                <div class="directions-section">
+                    <h2>Directions</h2>
+                    <ul class="directions-list">
+                        <li class="loading">Loading directions...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="./js/API_Inventory.js"></script>
+    <script src="./js/dropdown.js"></script>
+    <script src="./js/recipe.js"></script>
+</body>
+</html>

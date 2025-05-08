@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const imageUrl = recipe.imageUrl || '';
         const cookingTime = recipe.time || "-";
-        const color = recipe.hasAllIngredients ? 'black' : 'red';
+        const color = recipe.hasAllIngredients ? 'white' : 'red';
 
         recipeDiv.innerHTML = `
             <div class="recipe-image" style="background-image: url('${imageUrl}')">
