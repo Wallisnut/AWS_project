@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BiteBright - Food Inventory Management</title>
+    <title>BiteBright - Inventory</title>
     <link rel="stylesheet" href="./css/Home.css">
     <link rel="stylesheet" href="./css/dropdown.css">
+    <link rel="stylesheet" href="./css/inventory.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -80,78 +81,48 @@
                         </div>
                     </div>
                     <div class="dropdown-divider"></div>
-                  
-                    <div class="dropdown-divider"></div>
                     <div class="dropdown-footer">
-                        <button class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                        <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
                     </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <main>
-        <div class="welcome-section">
-            <h2>Welcome back, Sudlhor!</h2>
+    <main class="inventory-main">
+        <div class="inventory-header">
+            <div class="back-navigation">
+                <a href="Homepage.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h1 class="page-title">Inventory</h1>
+            </div>
             <button class="add-item-btn"><i class="fas fa-plus"></i> Add Item</button>
         </div>
 
-        <div class="dashboard">
-            <div class="expiring-soon-card">
-                <div class="card-header">
-                    <h3>Expiring Soon</h3>
-                    <p>Items that need your attention</p>
+        <div class="inventory-container">
+            <div class="inventory-controls">
+                <div class="search-bar">
+                    <input type="text" placeholder="Search items..." class="inventory-search">
                 </div>
-                
-                <div class="expiring-items">
-                    <!-- ข้อมูลจะถูกเติมโดย inventory.js -->
-                </div>
-
-                <div class="view-all">
-                    <a href="inventory.html">View all items <span class="arrow">></span></a>
+                <div class="sort-dropdown">
+                    <button class="sort-button">Sort by: Date Added</button>
                 </div>
             </div>
 
-            <div class="inventory-summary-card">
-                <div class="card-header">
-                    <h3>Inventory Summary</h3>
-                    <p>Current stock overview</p>
-                </div>
-
-                <div class="summary-items">
-                    <div class="summary-item">
-                        <p>Total items</p>
-                        <p class="count" id="total-items-count">XX</p>
-                    </div>
-                    <div class="summary-item">
-                        <p>Categories</p>
-                        <p class="count" id="categories-count">XX</p>
-                    </div>
-                    <div class="summary-item">
-                        <p>Expiring This Week</p>
-                        <p class="count" id="expiring-this-week-count">XX</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="recipe-section">
-            <div class="recipe-header">
-                <div class="recipe-icon">
-                    <div class="icon-bg"></div>
-                </div>
-                <h3>Cook with what you've got<span class="recipe-icon-light">💡</span></h3>
+            <div class="category-tabs">
+                <button class="category-tab active" data-category="all">All Item</button>
+                <button class="category-tab" data-category="dairy">Dairy</button>
+                <button class="category-tab" data-category="produce">Produce</button>
+                <button class="category-tab" data-category="meat">Meat</button>
+                <button class="category-tab" data-category="pentry">Pentry</button>
             </div>
 
-            <div class="recipe-cards" id="recipe-list">
-                <!-- ข้อมูลจะถูกเติมโดย RecipeRecom.js -->
-            </div>
-
-            <div class="explore-more">
-                <a href="recipeRecom.html" class="explore-more-btn">Explore More</a>
+            <div class="inventory-list">
             </div>
         </div>
     </main>
+
     <div id="overlay" class="overlay">
         <div class="modal">
           <div class="modal-content">
@@ -171,8 +142,8 @@
               
               <div class="form-group">
                 <label for="item-category">Category</label>
-                <input type="text" id="item-category" placeholder="Value" required>
-              </div>
+                <input type="text" id="item-category" required>
+              </div>            
               
               <div class="form-group">
                 <label for="item-quantity">Quantity</label>
@@ -182,16 +153,16 @@
               <div class="form-group">
                 <label for="item-expiry">Expiry Date</label>
                 <div class="date-input">
-                    <i class="far fa-calendar"></i>
-                    <input type="text" id="item-expiry" placeholder="dd/mm/yyyy" required>
+                  <i class="far fa-calendar"></i>
+                  <input type="text" id="item-expiry" placeholder="Select Date" required readonly>
                 </div>
-            </div>
-              
+              </div>
+
               <div class="form-group">
-                <label for="item-image">Image (Optional)</label>
+                <label for="item-image">Item Image</label>
                 <input type="file" id="item-image" accept="image/*">
               </div>
-              
+            
               <div class="form-actions">
                 <button type="button" id="cancel-btn" class="cancel-btn">Cancel</button>
                 <button type="submit" class="save-btn">Save</button>
@@ -200,12 +171,55 @@
           </div>
         </div>
       </div>
-      
-    <!-- เปลี่ยนการอ้างอิงไฟล์ JavaScript -->
+
+      <div id="edit-overlay" class="overlay">
+        <div class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <i class="fas fa-edit"></i>
+                        <h2>Edit Item</h2>
+                    </div>
+                </div>
+                <form id="edit-item-form">
+                    <div class="form-group">
+                        <label for="edit-item-name">Item</label>
+                        <input type="text" id="edit-item-name" required>
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="edit-item-category">Category</label>
+                        <select id="edit-item-category" required>
+                            <option value="">Select Category</option>
+                            <option value="Dairy">Dairy</option>
+                            <option value="Produce">Produce</option>
+                            <option value="Meat">Meat</option>
+                            <option value="Pantry">Pantry</option>
+                        </select>
+                    </div>                    
+    
+                    <div class="form-group">
+                        <label for="edit-item-quantity">Quantity</label>
+                        <input type="text" id="edit-item-quantity" required>
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="edit-item-expiry">Expiry Date</label>
+                        <input type="text" id="edit-item-expiry" required>
+                    </div>
+    
+                    <div class="form-actions">
+                        <button type="button" id="edit-cancel-btn" class="cancel-btn">Cancel</button>
+                        <button type="submit" class="save-btn">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- เพิ่ม script tag สำหรับ API Service ก่อนไฟล์ JavaScript อื่นๆ -->
     <script src="./js/API_Inventory.js"></script>
-    <script src="./js/inventory.js"></script>
-    <script src="./js/RecipeRecom.js"></script>
     <script src="./js/dropdown.js"></script>
-    <script src="./js/homepage-adapter.js"></script>
+    <script src="./js/inventory.js"></script>
 </body>
 </html>
