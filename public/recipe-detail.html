@@ -3,12 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pad Kraprow Recipe - BiteBright</title>
+    <title>Recipe Detail - BiteBright</title>
     <link rel="stylesheet" href="./css/Home.css">
     <link rel="stylesheet" href="./css/dropdown.css">
     <link rel="stylesheet" href="./css/recipe.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .loading { text-align: center; padding: 20px; font-size: 18px; color: #666; }
+        .error { text-align: center; padding: 20px; font-size: 18px; color: #d32f2f; }
+        .recipe-image-container img { width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; }
+        .favorite-btn { background: none; border: none; cursor: pointer; font-size: 24px; color: #ccc; }
+        .favorite-btn.active { color: #e91e63; }
+        ul.directions-list { 
+            list-style: none; 
+            padding-left: 0; 
+            counter-reset: step-counter; 
+        }
+        ul.directions-list li { 
+            position: relative; 
+            padding-left: 30px; 
+            margin-bottom: 10px; 
+        }
+        ul.directions-list li::before { 
+            counter-increment: step-counter; 
+            content: counter(step-counter) ". "; 
+            position: absolute; 
+            left: 0; 
+            color: #333; 
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -65,7 +89,6 @@
                     </div>
                 </div>
             </div>
-            
             <div class="user-container">
                 <button class="icon-button user-btn">
                     <i class="fas fa-user"></i>
@@ -97,20 +120,18 @@
 
     <main class="recipe-main">
         <div class="recipe-container">
-            <a href="Homepage.html">
             <div class="back-button">
                 <a href="Homepage.html"><i class="fas fa-chevron-left"></i></a>
             </div>
-            </a>
-            <h1 class="recipe-title">Pad Kraprow</h1>
+            <h1 class="recipe-title">Loading recipe...</h1>
             
             <div class="recipe-image-container">
-                <img src="./img/Padkraphao.jpg" alt="Pad Kraprow dish" class="recipe-image">
+                <div class="loading">Loading recipe image...</div>
             </div>
             
             <div class="recipe-level">
-                <span>Level : Easy</span>
-                <button class="favorite-btn active" id="favoriteBtn">
+                <span>Level: Easy</span>
+                <button class="favorite-btn" id="favoriteBtn">
                     <i class="fas fa-heart"></i>
                 </button>
             </div>
@@ -119,98 +140,21 @@
                 <div class="ingredients-section">
                     <h2>Ingredients</h2>
                     <ul class="ingredients-list">
-                        <li>
-                            <label class="checkbox-container">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                <span class="ingredient-text">400 g pork</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="checkbox-container">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                <span class="ingredient-text">50 g holy basil leaves</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="checkbox-container">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                <span class="ingredient-text">2 heads of garlic</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="checkbox-container">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                <span class="ingredient-text">12 fresh red Jinda chilies</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="checkbox-container">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                <span class="ingredient-text">6 dried red Jinda chilies</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="checkbox-container">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                <span class="ingredient-text">1 tbsp fish sauce</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="checkbox-container">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                <span class="ingredient-text">1.5 tbsp seasoning sauce (green cap)</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="checkbox-container">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                <span class="ingredient-text">3 tbsp oyster sauce</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="checkbox-container">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                <span class="ingredient-text">0.5 tbsp sweet dark soy sauce (optional)</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="checkbox-container">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                <span class="ingredient-text">0.5 tbsp granulated sugar</span>
-                            </label>
-                        </li>
+                        <li class="loading">Loading ingredients...</li>
                     </ul>
                 </div>
                 
                 <div class="directions-section">
                     <h2>Directions</h2>
-                    <ol class="directions-list">
-                        <li>Cut pork shoulder into pieces and mince finely to desired texture, then set aside.</li>
-                        <li>Pound dried chilies until fine, then add fresh Jinda chilies and garlic, pounding until smooth (or blend if preferred).</li>
-                        <li>Heat a pan over medium heat, add a moderate amount of vegetable oil, and stir-fry the chili-garlic paste until fragrant.</li>
-                        <li>Once fragrant, add minced pork, stirring to break it apart and prevent clumping. Stir-fry until the pork is partially cooked and well-mixed with the paste.</li>
-                        <li>Season with oyster sauce, fish sauce, seasoning sauce, sweet dark soy sauce (if using), and sugar. Increase heat and stir-fry until well-combined.</li>
-                        <li>Taste and adjust seasoning, then add holy basil leaves and stir-fry until wilted.</li>
-                        <li>Turn off the heat, transfer to a plate, and serve.</li>
-                    </ol>
+                    <ul class="directions-list">
+                        <li class="loading">Loading directions...</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- เพิ่ม script tag สำหรับ API Service ก่อนไฟล์ JavaScript อื่นๆ -->
-    <script src="./js/api-service.js"></script>
-    <script src="./js/Home.js"></script>
+    <script src="./js/API_Inventory.js"></script>
     <script src="./js/dropdown.js"></script>
     <script src="./js/recipe.js"></script>
 </body>
