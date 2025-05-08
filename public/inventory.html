@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiteBright - Inventory</title>
+    <link rel="stylesheet" href="./css/Home.css">
+    <link rel="stylesheet" href="./css/dropdown.css">
+    <link rel="stylesheet" href="./css/inventory.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1><span class="logo-bite">Bite</span><span class="logo-bright">Bright</span><span class="logo-icon">💡</span></h1>
+        </div>
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" placeholder="Search" class="search-input">
+            <button class="clear-search"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="header-icons">
+            <div class="notification-container">
+                <button class="icon-button notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+                <div class="notification-dropdown">
+                    <div class="dropdown-header">
+                        <h3>Notifications</h3>
+                        <button class="mark-all-read">Mark all as read</button>
+                    </div>
+                    <div class="notification-list">
+                        <div class="notification-item unread">
+                            <div class="notification-icon warning">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="notification-content">
+                                <p class="notification-text">Tomatoes are expiring today!</p>
+                                <p class="notification-time">Just now</p>
+                            </div>
+                        </div>
+                        <div class="notification-item unread">
+                            <div class="notification-icon info">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="notification-content">
+                                <p class="notification-text">New recipe suggestions available</p>
+                                <p class="notification-time">2 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="notification-item">
+                            <div class="notification-icon success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="notification-content">
+                                <p class="notification-text">Inventory updated successfully</p>
+                                <p class="notification-time">Yesterday</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown-footer">
+                        <a href="#">View all notifications</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="user-container">
+                <button class="icon-button user-btn">
+                    <i class="fas fa-user"></i>
+                </button>
+                <div class="user-dropdown">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="user-details">
+                            <p class="user-name">Sudlhor</p>
+                            <p class="user-email">sudlhor@example.com</p>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-footer">
+                        <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="inventory-main">
+        <div class="inventory-header">
+            <div class="back-navigation">
+                <a href="Homepage.html" class="back-button">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h1 class="page-title">Inventory</h1>
+            </div>
+            <button class="add-item-btn"><i class="fas fa-plus"></i> Add Item</button>
+        </div>
+
+        <div class="inventory-container">
+            <div class="inventory-controls">
+                <div class="search-bar">
+                    <input type="text" placeholder="Search items..." class="inventory-search">
+                </div>
+                <div class="sort-dropdown">
+                    <button class="sort-button">Sort by: Date Added</button>
+                </div>
+            </div>
+
+            <div class="category-tabs">
+                <button class="category-tab active" data-category="all">All Item</button>
+                <button class="category-tab" data-category="dairy">Dairy</button>
+                <button class="category-tab" data-category="produce">Produce</button>
+                <button class="category-tab" data-category="meat">Meat</button>
+                <button class="category-tab" data-category="pentry">Pentry</button>
+            </div>
+
+            <div class="inventory-list">
+            </div>
+        </div>
+    </main>
+
+    <div id="overlay" class="overlay">
+        <div class="modal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <div class="modal-title">
+                <i class="fas fa-shopping-cart"></i>
+                <h2>Add New Item</h2>
+              </div>
+            </div>
+            <p class="modal-subtitle">Enter the details of the item you want to add to your inventory</p>
+            
+            <form id="add-item-form">
+              <div class="form-group">
+                <label for="item-name">Item</label>
+                <input type="text" id="item-name" placeholder="Value" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="item-category">Category</label>
+                <input type="text" id="item-category" required>
+              </div>            
+              
+              <div class="form-group">
+                <label for="item-quantity">Quantity</label>
+                <input type="text" id="item-quantity" placeholder="Value" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="item-expiry">Expiry Date</label>
+                <div class="date-input">
+                  <i class="far fa-calendar"></i>
+                  <input type="text" id="item-expiry" placeholder="Select Date" required readonly>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="item-image">Item Image</label>
+                <input type="file" id="item-image" accept="image/*">
+              </div>
+            
+              <div class="form-actions">
+                <button type="button" id="cancel-btn" class="cancel-btn">Cancel</button>
+                <button type="submit" class="save-btn">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div id="edit-overlay" class="overlay">
+        <div class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <i class="fas fa-edit"></i>
+                        <h2>Edit Item</h2>
+                    </div>
+                </div>
+                <form id="edit-item-form">
+                    <div class="form-group">
+                        <label for="edit-item-name">Item</label>
+                        <input type="text" id="edit-item-name" required>
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="edit-item-category">Category</label>
+                        <select id="edit-item-category" required>
+                            <option value="">Select Category</option>
+                            <option value="Dairy">Dairy</option>
+                            <option value="Produce">Produce</option>
+                            <option value="Meat">Meat</option>
+                            <option value="Pantry">Pantry</option>
+                        </select>
+                    </div>                    
+    
+                    <div class="form-group">
+                        <label for="edit-item-quantity">Quantity</label>
+                        <input type="text" id="edit-item-quantity" required>
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="edit-item-expiry">Expiry Date</label>
+                        <input type="text" id="edit-item-expiry" required>
+                    </div>
+    
+                    <div class="form-actions">
+                        <button type="button" id="edit-cancel-btn" class="cancel-btn">Cancel</button>
+                        <button type="submit" class="save-btn">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- เพิ่ม script tag สำหรับ API Service ก่อนไฟล์ JavaScript อื่นๆ -->
+    <script src="./js/API_Inventory.js"></script>
+    <script src="./js/dropdown.js"></script>
+    <script src="./js/inventory.js"></script>
+</body>
+</html>
