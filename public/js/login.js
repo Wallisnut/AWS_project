@@ -1,13 +1,20 @@
 function login() {
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
+    const errorMessage = document.getElementById('login-error');
+    
+    // Clear previous error
+    errorMessage.textContent = '';
 
+    // Check for empty fields
     if (!username || !password) {
-        alert("Please enter both username and password.");
+        errorMessage.textContent = "Please enter both username and password.";
         return;
     }
 
-    fetch('https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/login', { // <-- เปลี่ยน URL เป็นของจริงที่ backend ให้
+    showToast("Logging in...");
+
+    fetch('https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -19,24 +26,28 @@ function login() {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error("Invalid username or password");
+            return response.json().then(err => {
+                throw new Error(err.message || "Invalid username or password");
+            });
         }
         return response.json();
     })
     .then(data => {
-
         const userId = data.userId;
 
         if (!userId) {
-            throw new Error("No userId returned from server");
+            throw new Error("No userId returned from server.");
         }
 
         localStorage.setItem("userId", userId);
 
-        alert("Login success!");
-        window.location.href = "Homepage.html";
+        showToast("Login success! Redirecting...");
+        setTimeout(() => {
+            window.location.href = "inventory.html";
+        }, 1000);
     })
     .catch(error => {
-        alert(error.message);
+        // Show error message inline
+        errorMessage.textContent = error.message;
     });
 }

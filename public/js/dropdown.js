@@ -1,20 +1,29 @@
 document.addEventListener("DOMContentLoaded", () => {
+    setupLogout();
+    setupProfileDropdown();
+});
+
+// ---- Logout Setup ----
+function setupLogout() {
     const logoutBtn = document.getElementById("logout-btn");
 
     if (logoutBtn) {
         logoutBtn.addEventListener("click", () => {
-            showToast('Logging out...');
-
-            setTimeout(() => {
-                localStorage.removeItem('userId');
-                alert('You have been logged out successfully.');
-                window.location.href = 'login.html';
-            }, 1500);
+            logout();
         });
     }
+}
 
-    // profile dropdown
+function logout() {
+    localStorage.removeItem('userId');
+    showToast("You have been logged out.");
+    setTimeout(() => {
+        window.location.href = 'login.html';
+    }, 300);
+}
 
+// ---- Profile Dropdown ----
+function setupProfileDropdown() {
     const userBtn = document.querySelector('.user-btn');
     const userDropdown = document.querySelector('.user-dropdown');
 
@@ -30,9 +39,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-});
+}
 
-// Toast notification function
+// ---- Toast Notification ----
 function showToast(message) {
     const existingToast = document.querySelector('.toast');
     if (existingToast) {
@@ -47,12 +56,13 @@ function showToast(message) {
     toast.style.bottom = '20px';
     toast.style.left = '50%';
     toast.style.transform = 'translateX(-50%)';
-    toast.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    toast.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
     toast.style.color = 'white';
     toast.style.padding = '12px 20px';
     toast.style.borderRadius = '8px';
     toast.style.zIndex = '1000';
     toast.style.transition = 'opacity 0.5s';
+    toast.style.opacity = '1';
 
     document.body.appendChild(toast);
 
@@ -61,5 +71,5 @@ function showToast(message) {
         setTimeout(() => {
             toast.remove();
         }, 500);
-    }, 3000);
+    }, 1500);
 }

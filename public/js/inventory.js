@@ -1,10 +1,8 @@
 let dynamicCategories = [];
 
 document.addEventListener('DOMContentLoaded', async function() {
-    const logoutBtn = document.getElementById("logout-btn");
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", logout);
-    }
+    setupLogout();
+
     try {
         await loadInventoryData();
     } catch (error) {
@@ -137,7 +135,7 @@ function updateInventoryList(data) {
 
             const itemElement = document.createElement('div');
             itemElement.className = 'inventory-item';
-            itemElement.dataset.itemId = item.id;
+            itemElement.dataset.itemId = item.ingredientId || item.id || "";
 
             itemElement.innerHTML = `
                 <div class="item-image" style="${item.imageUrl ? `background-image: url(${item.imageUrl})` : ''}"></div>
@@ -302,15 +300,35 @@ function handleEditButtonClick(event) {
             document.body.style.overflow = "";
         };
 
-        editForm.onsubmit = (e) => {
+        editForm.onsubmit = async (e) => {
             e.preventDefault();
-            showToast("Item updated (mock only)");
-            editOverlay.classList.remove("active");
-            document.body.style.overflow = "";
+        
+            const updatedItem = {
+                name: document.getElementById("edit-item-name").value,
+                category: document.getElementById("edit-item-category").value,
+                quantity: document.getElementById("edit-item-quantity").value,
+                expiryDate: document.getElementById("edit-item-expiry").value
+            };
+        
+            try {
+                // เรียก API PUT (ของจริง)
+                await window.BiteBrightAPI.editInventoryItem(itemId, updatedItem);
+        
+                showToast("Item updated successfully");
+        
+                editOverlay.classList.remove("active");
+                document.body.style.overflow = "";
+        
+                // โหลดข้อมูลใหม่หลังจากอัปเดตเสร็จ
+                await loadInventoryData();
+            } catch (error) {
+                console.error("Failed to update item:", error);
+                showToast("Failed to update item. Please try again.");
+            }
         };
-    }
+        
+    };
 }
-
 // Date Utilities
 function parseDate(dateStr) {
     const [day, month, year] = dateStr.split('/').map(Number);
@@ -371,9 +389,4 @@ function showToast(message) {
             toast.remove();
         }, 500);
     }, 3000);
-}
-
-function logout() {
-    localStorage.removeItem("userId");
-    window.location.href = "login.html";
 }

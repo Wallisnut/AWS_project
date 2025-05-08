@@ -14,6 +14,8 @@ function signup() {
         return;
     }
 
+    showToast("Create accounting...")
+
     //backend (เปลี่ยน URL API)
     fetch('https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/register', {
         method: 'POST',
@@ -33,7 +35,7 @@ function signup() {
         return response.json();
     })
     .then(data => {
-        alert("Sign up success! Please login.");
+        // alert("Sign up success! Please login.");
         window.location.href = "login.html";
     })
     .catch(error => {

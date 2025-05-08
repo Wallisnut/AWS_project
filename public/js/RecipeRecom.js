@@ -1,8 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    const logoutBtn = document.getElementById("logout-btn");
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", logout);
-    }
+    setupLogout();
     const recipeContainer = document.getElementById("recipe-list");
 
     const inventoryData = await window.BiteBrightAPI.getInventoryItems();

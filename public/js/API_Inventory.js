@@ -15,17 +15,15 @@ function getUserId() {
 window.BiteBrightAPI.getInventoryItems = async function () {
     const userId = getUserId();
 
-    const response = await fetch("https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients", {
-        method: "POST",
+    const response = await fetch(`https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients?userId=${userId}`, {
+        method: "GET",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId })
-    });
+    });   
 
     if (!response.ok) throw new Error("Failed to fetch ingredients.");
 
     const result = await response.json();
 
-    // ตรวจสอบว่า result เป็น array หรือไม่
     const items = Array.isArray(result) ? result : (result.items || []);
 
     const categories = {};
@@ -48,12 +46,33 @@ window.BiteBrightAPI.addInventoryItem = async function (item) {
             userId,
             name: item.name,
             category: item.category,
-            quantity: item.quantity,
+            quantity: Number(item.quantity) || 0,
             expiryDate: item.expiryDate
         })
     });
 
     if (!response.ok) throw new Error("Failed to add item.");
+
+    return response.json();
+};
+
+// EDIT (PUT) inventory
+window.BiteBrightAPI.editInventoryItem = async function (ingredientId, item) {
+    const userId = getUserId();
+
+    const response = await fetch(`https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients/${ingredientId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            userId,
+            name: item.name,
+            category: item.category,
+            quantity: Number(item.quantity) || 0,
+            expiryDate: item.expiryDate
+        })
+    });
+
+    if (!response.ok) throw new Error("Failed to update item.");
 
     return response.json();
 };
