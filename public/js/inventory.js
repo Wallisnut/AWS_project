@@ -48,11 +48,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             const itemQuantity = document.getElementById("item-quantity").value;
             const itemExpiry = document.getElementById("item-expiry").value;
 
+            const itemImageFile = document.getElementById("item-image").files[0];
+
             const newItem = {
                 name: itemName,
                 category: itemCategory,
                 quantity: itemQuantity,
-                expiryDate: itemExpiry
+                expiryDate: itemExpiry,
+                imageFile: itemImageFile
             };
 
             try {

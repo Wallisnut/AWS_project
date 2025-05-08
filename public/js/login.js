@@ -14,7 +14,7 @@ function login() {
 
     showToast("Logging in...");
 
-    fetch('https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/login', {
+    fetch('https://ak6gm44y14.execute-api.us-east-1.amazonaws.com/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

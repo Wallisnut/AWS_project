@@ -15,15 +15,14 @@ function getUserId() {
 window.BiteBrightAPI.getInventoryItems = async function () {
     const userId = getUserId();
 
-    const response = await fetch(`https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients?userId=${userId}`, {
+    const response = await fetch(`https://ak6gm44y14.execute-api.us-east-1.amazonaws.com/GetItems?userId=${userId}`, {
         method: "GET",
-        headers: { "Content-Type": "application/json" },
-    });   
+        headers: { "Content-Type": "application/json" }
+    });
 
     if (!response.ok) throw new Error("Failed to fetch ingredients.");
 
     const result = await response.json();
-
     const items = Array.isArray(result) ? result : (result.items || []);
 
     const categories = {};
@@ -39,76 +38,76 @@ window.BiteBrightAPI.getInventoryItems = async function () {
 window.BiteBrightAPI.addInventoryItem = async function (item) {
     const userId = getUserId();
 
-    const response = await fetch("https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients", {
+    let base64Image = null;
+    if (item.imageFile) {
+        base64Image = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(",")[1]);
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(item.imageFile);
+        });
+    }
+
+    const response = await fetch("https://ak6gm44y14.execute-api.us-east-1.amazonaws.com/addItem", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             userId,
             name: item.name,
             category: item.category,
-            quantity: Number(item.quantity) || 0,
-            expiryDate: item.expiryDate
+            quantity: item.quantity,
+            expiryDate: item.expiryDate,
+            imageBase64: base64Image
         })
     });
 
-    if (!response.ok) throw new Error("Failed to add item.");
+    if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error("Failed to add item. " + errorData);
+    }
 
     return response.json();
 };
 
-// EDIT (PUT) inventory
+// EDIT inventory
 window.BiteBrightAPI.editInventoryItem = async function (ingredientId, item) {
     const userId = getUserId();
 
-    const response = await fetch(`https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients/${ingredientId}`, {
+    let base64Image = null;
+    if (item.imageFile) {
+        base64Image = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(",")[1]);
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(item.imageFile);
+        });
+    }
+
+    const response = await fetch(`https://ak6gm44y14.execute-api.us-east-1.amazonaws.com/editItem`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             userId,
+            ingredientId,
             name: item.name,
             category: item.category,
-            quantity: Number(item.quantity) || 0,
-            expiryDate: item.expiryDate
+            quantity: item.quantity,
+            expiryDate: item.expiryDate,
+            imageBase64: base64Image
         })
     });
 
-    if (!response.ok) throw new Error("Failed to update item.");
+    if (!response.ok) throw new Error("Failed to edit item.");
 
     return response.json();
 };
 
-// DELETE inventory
-window.BiteBrightAPI.deleteInventoryItem = async function (ingredientId) {
-    const userId = getUserId();
-
-    const response = await fetch("https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            userId,
-            ingredientId
-        })
-    });
-
-    if (!response.ok) throw new Error("Failed to delete item.");
-
-    return response.json();
-};
-
-// เช็ควันหมดอายุ
-window.BiteBrightAPI.checkExpiringItems = async function () {
-    const response = await fetch("https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients/checkexpiring");
-
-    if (!response.ok) throw new Error("Failed to check expiring items.");
-
-    return response.json();
-};
 
 // แนะนำเมนู (recommendMenu)
 window.BiteBrightAPI.getRecommendedRecipes = async function () {
     const userId = getUserId();
 
-    const url = `https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients/recommendMenu?userId=${userId}`;
+    const url = `https://ak6gm44y14.execute-api.us-east-1.amazonaws.com/recommendMenu?userId=${userId}`;
 
     const response = await fetch(url, { method: "GET" });
 
@@ -116,16 +115,3 @@ window.BiteBrightAPI.getRecommendedRecipes = async function () {
 
     return response.json();
 };
-
-// window.BiteBrightAPI.getRecipes = async function () {
-//     const userId = localStorage.getItem("userId");
-//     if (!userId) throw new Error("No userId found. Please login first.");
-
-//     const response = await fetch(`https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients/recommendMenu?userId=${userId}`, {
-//         method: "GET",
-//     });
-
-//     if (!response.ok) throw new Error("Failed to fetch recommended recipes.");
-
-//     return response.json();
-// };

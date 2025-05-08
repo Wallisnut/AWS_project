@@ -17,7 +17,7 @@ function signup() {
     showToast("Create accounting...")
 
     //backend (เปลี่ยน URL API)
-    fetch('https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/register', {
+    fetch('https://ak6gm44y14.execute-api.us-east-1.amazonaws.com/register', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

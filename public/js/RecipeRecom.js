@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const inventoryData = await window.BiteBrightAPI.getInventoryItems();
     const recipes = await window.BiteBrightAPI.getRecommendedRecipes();
 
-    // เตรียม list ของวัตถุดิบที่ไม่หมดอายุ
     const availableIngredients = [];
     Object.values(inventoryData.categories).flat().forEach(item => {
         const expiryDate = parseDate(item.expiryDate);
@@ -16,17 +15,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    // สร้าง HTML recipe card
     const renderRecipeCard = (recipe) => {
         const recipeDiv = document.createElement("div");
         recipeDiv.className = "recipe-card";
 
         const imageUrl = recipe.imageUrl || '';
         const cookingTime = recipe.time || "-";
+        const color = recipe.hasAllIngredients ? 'black' : 'red';
 
         recipeDiv.innerHTML = `
             <div class="recipe-image" style="background-image: url('${imageUrl}')">
-                <h4>${recipe.name}</h4>
+                <h4 style="color: ${color}">${recipe.name}</h4>
             </div>
             <div class="recipe-details">
                 <div class="recipe-time">
@@ -40,28 +39,20 @@ document.addEventListener("DOMContentLoaded", async () => {
             </div>
         `;
 
-        // เมื่อกดปุ่ม View Recipe
         const viewButton = recipeDiv.querySelector(".view-recipe-btn");
         viewButton.addEventListener("click", () => {
-            // เปลี่ยนหน้านี้ไปยัง recipe-detail.html โดยส่ง id recipe ไปด้วย
             window.location.href = `recipe-detail.html?id=${recipe.id}`;
         });
 
         recipeContainer.appendChild(recipeDiv);
     };
 
-    // กรองเฉพาะเมนูที่วัตถุดิบครบเท่านั้น
+    // แสดงทุกเมนูเลย แต่เน้นสี
     recipes.forEach(recipe => {
-        const total = recipe.ingredients.length;
-        const have = recipe.ingredients.filter(ing => availableIngredients.includes(ing.toLowerCase())).length;
-
-        if (have === total) {
-            renderRecipeCard(recipe);
-        }
+        renderRecipeCard(recipe);
     });
 });
 
-// Helper function
 function parseDate(dateStr) {
     const [day, month, year] = dateStr.split('/').map(Number);
     const realYear = year >= 2500 ? year - 543 : year;
@@ -70,9 +61,4 @@ function parseDate(dateStr) {
 
 function getDateWithoutTime(date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
-function logout() {
-    localStorage.removeItem("userId");
-    window.location.href = "login.html";
 }
