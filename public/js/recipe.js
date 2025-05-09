@@ -2,22 +2,6 @@
  * recipe.js
  * จัดการการแสดงผลสูตรอาหารใน recipe-detail.html
  */
-function showToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-    toast.style.position = 'fixed';
-    toast.style.bottom = '20px';
-    toast.style.left = '50%';
-    toast.style.transform = 'translateX(-50%)';
-    toast.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-    toast.style.color = 'white';
-    toast.style.padding = '12px 20px';
-    toast.style.borderRadius = '8px';
-    toast.style.zIndex = '1000';
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-}
 
 async function loadRecipeData() {
     const recipeTitle = document.querySelector('.recipe-title');
@@ -31,37 +15,42 @@ async function loadRecipeData() {
     directionsList.innerHTML = '<li class="loading">Loading directions...</li>';
 
     try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedId = urlParams.get("id");
+
         const recipes = await window.BiteBrightAPI.getRecommendedRecipes();
         console.log('Loaded recipes:', recipes);
 
-        if (recipes.length === 0) {
-            recipeTitle.textContent = 'No Recipe Available';
-            recipeImageContainer.innerHTML = '<div class="error">No recipe image available.</div>';
-            ingredientsList.innerHTML = '<li>No ingredients available.</li>';
-            directionsList.innerHTML = '<li>No directions available.</li>';
-            showToast('No recipes found.');
+        const recipe = recipes.find(r => r.id === selectedId);
+
+        if (!recipe) {
+            recipeTitle.textContent = 'Recipe not found';
+            showToast('Recipe not found.');
             return;
         }
 
-        // เลือก recipe แรก
-        const recipe = recipes[0];
+        const name = recipe.name;
+        const imageUrl = recipe.imageUrl;
+        const detail = recipe.detail;
+        const ingredientsRaw = recipe.ingredients || [];
 
-        recipeTitle.textContent = recipe.name;
+        recipeTitle.textContent = name;
         recipeImageContainer.innerHTML = `
-            <img src="${recipe.imageUrl}" alt="${recipe.name} dish" class="recipe-image">
+            <img src="${imageUrl}" alt="${name} dish" class="recipe-image">
         `;
 
         ingredientsList.innerHTML = '';
-        if (!recipe.ingredients || recipe.ingredients.length === 0) {
+        if (ingredientsRaw.length === 0) {
             ingredientsList.innerHTML = '<li>No ingredients available.</li>';
         } else {
-            recipe.ingredients.forEach(ingredient => {
+            ingredientsRaw.forEach(ingredient => {
+                const ing = ingredient.S || ingredient;
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <label class="checkbox-container">
                         <input type="checkbox" class="ingredient-checkbox">
                         <span class="checkmark"></span>
-                        <span class="ingredient-text">${ingredient}</span>
+                        <span class="ingredient-text">${ing}</span>
                     </label>
                 `;
                 ingredientsList.appendChild(li);
@@ -70,23 +59,24 @@ async function loadRecipeData() {
 
         directionsList.innerHTML = '';
         let steps = [];
-        if (!recipe.detail) {
+        if (!detail) {
             steps = ['No directions available.'];
-        } else if (typeof recipe.detail === 'string') {
-            steps = recipe.detail.split(/\d+\.\s*/).map(s => s.trim()).filter(s => s);
-        } else if (Array.isArray(recipe.detail)) {
-            steps = recipe.detail.map(step => step.replace(/^\d+\.\s*/, '').trim()).filter(s => s);
+        } else if (typeof detail === 'string') {
+            steps = detail.split(/\d+\.\s*/).map(s => s.trim()).filter(s => s);
+        } else if (Array.isArray(detail)) {
+            steps = detail.map(step => step.replace(/^\d+\.\s*/, '').trim()).filter(s => s);
         } else {
             steps = ['No directions available.'];
         }
+
         steps.forEach(step => {
             const li = document.createElement('li');
             li.textContent = step;
             directionsList.appendChild(li);
         });
 
-        await checkIngredientsInInventory(recipe.ingredients || []);
-        setupFavoriteButton(recipe.recipeId);
+        await checkIngredientsInInventory(ingredientsRaw);
+        setupFavoriteButton(recipe.id);
 
     } catch (error) {
         console.error('Error loading recipe data:', error);
@@ -114,10 +104,10 @@ async function checkIngredientsInInventory(ingredients) {
             const ingredientName = ingredientText.replace(/^\d+(\.\d+)?\s*(g|kg|tbsp|tsp|ml|heads?|cloves?)\s*/i, '').trim();
             const checkbox = element.querySelector('.ingredient-checkbox');
             if (availableIngredients.includes(ingredientName)) {
-                checkbox.checked = true; // ติ๊ก checkbox ถ้ามีใน inventory
+                checkbox.checked = true;
                 element.querySelector('.ingredient-text').style.color = '#4caf50';
             } else {
-                checkbox.checked = false; // ไม่ติ๊กถ้าไม่มี
+                checkbox.checked = false;
                 element.querySelector('.ingredient-text').style.color = '#d32f2f';
             }
         });

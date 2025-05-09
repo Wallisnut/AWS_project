@@ -21,11 +21,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const imageUrl = recipe.imageUrl || '';
         const cookingTime = recipe.time || "-";
-        const color = recipe.hasAllIngredients ? 'white' : 'red';
 
         recipeDiv.innerHTML = `
             <div class="recipe-image" style="background-image: url('${imageUrl}')">
-                <h4 style="color: ${color}">${recipe.name}</h4>
+                <h4>${recipe.name}</h4>
             </div>
             <div class="recipe-details">
                 <div class="recipe-time">
@@ -33,7 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </div>
                 <div class="recipe-ingredients">
                     <p>Ingredients :</p>
-                    <p>${recipe.ingredients.join(", ")}</p>
+                    <p>${recipe.ingredients.map(i => i.S || i).join(", ")}</p>
                 </div>
                 <button class="view-recipe-btn">View Recipe</button>
             </div>
@@ -41,15 +40,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const viewButton = recipeDiv.querySelector(".view-recipe-btn");
         viewButton.addEventListener("click", () => {
-            window.location.href = `recipe-detail.html?id=${recipe.id}`;
+            window.location.href = `recipe-detail.html?id=${recipe.recipeId?.S || recipe.id}`;
         });
 
         recipeContainer.appendChild(recipeDiv);
     };
 
-    // แสดงทุกเมนูเลย แต่เน้นสี
     recipes.forEach(recipe => {
-        renderRecipeCard(recipe);
+        const ingredients = recipe.ingredients.map(i => i.S?.toLowerCase?.() || i.toLowerCase());
+        const hasAll = ingredients.every(ing => availableIngredients.includes(ing));
+
+        if (hasAll) {
+            renderRecipeCard(recipe);
+        }
     });
 });
 

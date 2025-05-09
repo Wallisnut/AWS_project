@@ -66,6 +66,11 @@ window.BiteBrightAPI.addInventoryItem = async function (item) {
         throw new Error("Failed to add item. " + errorData);
     }
 
+    // 🔥 เรียกโหลดข้อมูลใหม่ ถ้าอยู่ในหน้า homepage
+    if (typeof loadDashboardData === "function") {
+        await loadDashboardData();
+    }
+
     return response.json();
 };
 

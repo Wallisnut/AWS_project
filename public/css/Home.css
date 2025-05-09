@@ -213,26 +213,31 @@
     font-weight: 500;
   }
   
-  .expiry-today {
-    background-color: #ffebee;
-    color: #e53935;
-  }
-  
-  .expiry-soon {
-    background-color: #fff8e1;
-    color: #ffa000;
-  }
-  
-  .expiry-medium {
-    background-color: #e3f2fd;
-    color: #1e88e5;
-  }
-  
-  .expiry-later {
-    background-color: #e8f5e9;
-    color: #43a047;
-  }
-  
+.expiry-expired {
+    background-color: #FFCCCC;
+    color: #A00;
+}
+
+.expiry-today {
+    background-color: #FFCCCC;
+    color: #A00;
+}
+
+.expiry-warning {
+    background-color: #FFF3B0;
+    color: #C90;
+}
+
+.expiry-info {
+    background-color: #CCE5FF;
+    color: #007BFF;
+}
+
+.expiry-ok {
+    background-color: #D4EDDA;
+    color: #28A745;
+}
+
   .view-all {
     margin-top: 15px;
     text-align: right;

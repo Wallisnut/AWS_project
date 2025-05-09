@@ -43,7 +43,7 @@ function login() {
 
         showToast("Login success! Redirecting...");
         setTimeout(() => {
-            window.location.href = "inventory.html";
+            window.location.href = "Homepage.html";
         }, 1000);
     })
     .catch(error => {

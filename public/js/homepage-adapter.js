@@ -1,3 +1,75 @@
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadDashboardData();
+});
+
+async function loadDashboardData() {
+    try {
+        const inventoryData = await window.BiteBrightAPI.getInventoryItems();
+        updateExpiringItems(inventoryData);
+        updateInventorySummary(inventoryData);
+
+        const recipeContainer = document.getElementById("recipe-list");
+        if (recipeContainer && recipeContainer.children.length === 0) {
+            const recipes = await window.BiteBrightAPI.getRecommendedRecipes();
+
+            const availableIngredients = [];
+            const today = getDateWithoutTime(new Date());
+
+            Object.values(inventoryData.categories).flat().forEach(item => {
+                const expiryDate = parseDate(item.expiryDate);
+                if (expiryDate >= today) {
+                    availableIngredients.push(item.name.toLowerCase());
+                }
+            });
+
+            // ✅ แสดงเฉพาะ 3 เมนูแรกที่มีวัตถุดิบครบ
+            const filteredRecipes = recipes.filter(recipe => {
+                const ingredients = recipe.ingredients.map(i => i.S?.toLowerCase?.() || i.toLowerCase());
+                return ingredients.every(ing => availableIngredients.includes(ing));
+            }).slice(0, 3);
+
+            filteredRecipes.forEach(recipe => {
+                renderRecipeCard(recipe);
+            });
+        }
+    } catch (error) {
+        console.error("Error loading dashboard data:", error);
+        showToast("Failed to load data. Please try again later.");
+    }
+}
+
+function renderRecipeCard(recipe) {
+    const recipeContainer = document.getElementById("recipe-list");
+    const recipeDiv = document.createElement("div");
+    recipeDiv.className = "recipe-card";
+
+    const imageUrl = recipe.imageUrl || '';
+    const cookingTime = recipe.time || "-";
+
+    recipeDiv.innerHTML = `
+        <div class="recipe-image" style="background-image: url('${imageUrl}')">
+            <h4>${recipe.name}</h4>
+        </div>
+        <div class="recipe-details">
+            <div class="recipe-time">
+                <i class="far fa-clock"></i> ${cookingTime}
+            </div>
+            <div class="recipe-ingredients">
+                <p>Ingredients :</p>
+                <p>${recipe.ingredients.map(i => i.S || i).join(", ")}</p>
+            </div>
+            <button class="view-recipe-btn">View Recipe</button>
+        </div>
+    `;
+
+    const viewButton = recipeDiv.querySelector(".view-recipe-btn");
+    viewButton.addEventListener("click", () => {
+        window.location.href = `recipe-detail.html?id=${recipe.recipeId?.S || recipe.id}`;
+    });
+
+    recipeContainer.appendChild(recipeDiv);
+}
+
 function parseDate(dateStr) {
     try {
         if (dateStr.includes('-')) {
@@ -17,26 +89,8 @@ function parseDate(dateStr) {
     }
 }
 
-function getExpiryClass(dateStr) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const expiryDate = parseDate(dateStr);
-    const diffDays = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-    if (diffDays <= 0) return 'expiry-today';
-    if (diffDays <= 3) return 'expiry-soon';
-    if (diffDays <= 6) return 'expiry-medium';
-    return 'expiry-later';
-}
-
-function getExpiryText(dateStr) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const expiryDate = parseDate(dateStr);
-    const diffDays = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-    if (diffDays <= 0) return `Expires: Today (${dateStr})`;
-    if (diffDays <= 3) return `Expires: 1-3 days (${dateStr})`;
-    if (diffDays <= 6) return `Expires: 4-6 days (${dateStr})`;
-    return `Expires: 7+ days (${dateStr})`;
+function getDateWithoutTime(date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
 function updateExpiringItems(data) {
@@ -121,23 +175,64 @@ function updateInventorySummary(data) {
     if (expiringThisWeekElement) expiringThisWeekElement.textContent = expiringThisWeek;
 }
 
-async function loadDashboardData() {
-    try {
-        const inventoryData = await window.BiteBrightAPI.getInventoryItems();
-        updateExpiringItems(inventoryData);
-        updateInventorySummary(inventoryData);
-
-        const recipeContainer = document.getElementById("recipe-list");
-        if (recipeContainer && recipeContainer.children.length === 0) {
-            const recipes = await window.BiteBrightAPI.getRecommendedRecipes();
-            console.log('Loaded recipes:', recipes);
-        }
-    } catch (error) {
-        console.error("Error loading dashboard data:", error);
-        showToast("Failed to load data. Please try again later.");
-    }
+// Date Utilities
+function parseDate(dateStr) {
+    const [day, month, year] = dateStr.split('/').map(Number);
+    const realYear = year >= 2500 ? year - 543 : year;
+    return new Date(realYear, month - 1, day);
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-    await loadDashboardData();
-});
+function getDateWithoutTime(date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function getExpiryClass(dateStr) {
+    const today = getDateWithoutTime(new Date());
+    const expiryDate = getDateWithoutTime(parseDate(dateStr));
+    const diffDays = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return 'expiry-expired';
+    if (diffDays === 0) return 'expiry-today';
+    if (diffDays <= 4) return 'expiry-warning';
+    if (diffDays <= 7) return 'expiry-info';
+    return 'expiry-ok';
+}
+
+function getExpiryText(dateStr) {
+    const today = getDateWithoutTime(new Date());
+    const expiryDate = getDateWithoutTime(parseDate(dateStr));
+    const diffDays = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return `Expired on ${dateStr}`;
+    if (diffDays === 0) return `Expires: Today ${dateStr}`;
+    return `Expires: In ${diffDays} day(s) ${dateStr}`;
+}
+
+function showToast(message) {
+    const existingToast = document.querySelector('.toast');
+    if (existingToast) existingToast.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.left = '50%';
+    toast.style.transform = 'translateX(-50%)';
+    toast.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    toast.style.color = 'white';
+    toast.style.padding = '12px 20px';
+    toast.style.borderRadius = '8px';
+    toast.style.zIndex = '1000';
+    toast.style.transition = 'opacity 0.5s';
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+            toast.remove();
+        }, 500);
+    }, 3000);
+}
