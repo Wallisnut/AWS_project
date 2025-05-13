@@ -28,11 +28,11 @@
 ```
 
 ## เช๊ควันหมดอายุ
-- https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients/checkexpiring
+- https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/check-expiry
   - get
  
 ## แนะนำเมนู
-- https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients/recommendMenu
+- https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/recommend-menu
   - get
 ## line notification
 - https://m2j6dg2ede.execute-api.us-east-1.amazonaws.com/webhook 
