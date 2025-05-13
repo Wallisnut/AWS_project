@@ -115,7 +115,7 @@ window.BiteBrightAPI.editInventoryItem = async function (ingredientId, item) {
 window.BiteBrightAPI.getRecommendedRecipes = async function () {
   const userId = getUserId();
 
-  const url = `https://ak6gm44y14.execute-api.us-east-1.amazonaws.com/recommendMenu?userId=${userId}`;
+  const url = `https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/recommend-menu?userId=${userId}`;
 
   const response = await fetch(url, { method: "GET" });
 
