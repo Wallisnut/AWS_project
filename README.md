@@ -1,13 +1,13 @@
 # AWS_project
 
 ## register
-- https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/register
+- https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/register-login
 - post
 ## login post
-- https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/login
+- https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/login
 - post
 ## จัดการวัตถุดิบ (รับเป็น event.json)
-- https://7sqyy6hp1j.execute-api.us-east-1.amazonaws.com/bitebright/ingredients
+- https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/ingredient
   -  add ingredient (post)
 ```
 {
