@@ -14,7 +14,7 @@ function login() {
 
     showToast("Logging in...");
 
-    fetch('https://ak6gm44y14.execute-api.us-east-1.amazonaws.com/login', {
+    fetch('https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

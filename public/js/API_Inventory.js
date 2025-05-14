@@ -15,7 +15,7 @@ function getUserId() {
 window.BiteBrightAPI.getInventoryItems = async function () {
     const userId = getUserId();
 
-    const response = await fetch(`https://ak6gm44y14.execute-api.us-east-1.amazonaws.com/GetItems?userId=${userId}`, {
+    const response = await fetch(`https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/ingredient?userId=${userId}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" }
     });
@@ -48,7 +48,7 @@ window.BiteBrightAPI.addInventoryItem = async function (item) {
         });
     }
 
-    const response = await fetch("https://ak6gm44y14.execute-api.us-east-1.amazonaws.com/addItem", {
+    const response = await fetch("https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/ingredient", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -88,7 +88,7 @@ window.BiteBrightAPI.editInventoryItem = async function (ingredientId, item) {
         });
     }
 
-    const response = await fetch(`https://ak6gm44y14.execute-api.us-east-1.amazonaws.com/editItem`, {
+    const response = await fetch(`https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/ingredient`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -112,7 +112,7 @@ window.BiteBrightAPI.editInventoryItem = async function (ingredientId, item) {
 window.BiteBrightAPI.getRecommendedRecipes = async function () {
     const userId = getUserId();
 
-    const url = `https://ak6gm44y14.execute-api.us-east-1.amazonaws.com/recommendMenu?userId=${userId}`;
+    const url = `https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/recommend-menu?userId=${userId}`;
 
     const response = await fetch(url, { method: "GET" });
 
