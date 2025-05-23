@@ -15,6 +15,27 @@ async function findExistingItem(name, category, expiryDate) {
     return null;
 }
 
+async function refreshNotifications() {
+  try {
+    const inventoryData = await window.BiteBrightAPI.getInventoryItems();
+    const today = getDateWithoutTime(new Date());
+    const soonExpiringItems = [];
+
+    Object.values(inventoryData.categories || {}).flat().forEach((item) => {
+      if (!item.expiryDate) return;
+      const expiry = getDateWithoutTime(parseDate(item.expiryDate));
+      const diffDays = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+      if (diffDays <= 4 && diffDays >= 0 || diffDays < 0) {
+        soonExpiringItems.push({ item, diffDays, expiryDate: expiry });
+      }
+    });
+
+    showNotification(soonExpiringItems);
+  } catch (err) {
+    console.error("Failed to refresh notifications:", err);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
     setupLogout();
 
@@ -196,6 +217,22 @@ document.addEventListener('DOMContentLoaded', async function() {
                 } else {
                     await window.BiteBrightAPI.addInventoryItem(newItem);
                     showToast(`Item "${itemName}" has been added to your inventory.`);
+                    if (typeof showNotification === "function") {
+                        const updatedData = await window.BiteBrightAPI.getInventoryItems();
+                        const today = getDateWithoutTime(new Date());
+                        const soonExpiringItems = [];
+
+                        Object.values(updatedData.categories || {}).flat().forEach((item) => {
+                            if (!item.expiryDate) return;
+                            const expiry = getDateWithoutTime(parseDate(item.expiryDate));
+                            const diffDays = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+                            if (diffDays <= 4 && diffDays >= 0 || diffDays < 0) {
+                            soonExpiringItems.push({ item, diffDays, expiryDate: expiry });
+                            }
+                        });
+
+                        showNotification(soonExpiringItems);
+                        }
                 }
 
                 addItemForm.reset();
@@ -500,6 +537,7 @@ function handleEditButtonClick(event) {
                 document.body.style.overflow = "";
         
                 await loadInventoryData();
+                await refreshNotifications();
             } catch (error) {
                 console.error("Failed to update item:", error);
                 showToast("Failed to update item. Please try again.");

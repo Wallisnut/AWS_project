@@ -282,3 +282,10 @@
   display: block;
 }
 
+.notification-item.expired {
+  background-color: #FFCCCC; /* สีแดงอ่อน */
+}
+
+.notification-item.warning {
+  background-color: #FFF3B0; /* สีเหลืองอ่อน */
+}
