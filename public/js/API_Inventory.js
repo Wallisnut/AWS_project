@@ -1,122 +1,147 @@
 if (!window.BiteBrightAPI) {
-    window.BiteBrightAPI = {};
+  window.BiteBrightAPI = {};
 }
 
 // Helper - ดึง userId
 function getUserId() {
-    const userId = localStorage.getItem("userId");
-    if (!userId) throw new Error("No userId found. Please login first.");
-    return userId;
+  const userId = localStorage.getItem("userId");
+  if (!userId) throw new Error("No userId found. Please login first.");
+  return userId;
 }
 
 // วัตถุดิบ (Inventory)
 
 // GET inventory
 window.BiteBrightAPI.getInventoryItems = async function () {
-    const userId = getUserId();
+  const userId = getUserId();
 
-    const response = await fetch(`https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/ingredient?userId=${userId}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" }
-    });
+  const response = await fetch(
+    `https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/ingredient?userId=${userId}`,
+    {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    },
+  );
 
-    if (!response.ok) throw new Error("Failed to fetch ingredients.");
+  if (!response.ok) throw new Error("Failed to fetch ingredients.");
 
-    const result = await response.json();
-    const items = Array.isArray(result) ? result : (result.items || []);
+  const result = await response.json();
+  const items = Array.isArray(result) ? result : result.items || [];
 
-    const categories = {};
-    items.forEach(item => {
-        if (!categories[item.category]) categories[item.category] = [];
-        categories[item.category].push(item);
-    });
+  const categories = {};
+  items.forEach((item) => {
+    if (!categories[item.category]) categories[item.category] = [];
+    categories[item.category].push(item);
+  });
 
-    return { categories };
+  return { categories };
 };
 
 // ADD inventory
 window.BiteBrightAPI.addInventoryItem = async function (item) {
-    const userId = getUserId();
+  const userId = getUserId();
 
-    let base64Image = null;
-    if (item.imageFile) {
-        base64Image = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result.split(",")[1]);
-            reader.onerror = error => reject(error);
-            reader.readAsDataURL(item.imageFile);
-        });
-    }
-
-    const response = await fetch("https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/ingredient", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            userId,
-            name: item.name,
-            category: item.category,
-            quantity: item.quantity,
-            expiryDate: item.expiryDate,
-            imageBase64: base64Image
-        })
+  let base64Image = null;
+  if (item.imageFile) {
+    base64Image = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(",")[1]);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(item.imageFile);
     });
+  }
 
-    if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error("Failed to add item. " + errorData);
-    }
+  const response = await fetch(
+    "https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/ingredient",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        name: item.name,
+        category: item.category,
+        quantity: item.quantity,
+        expiryDate: item.expiryDate,
+        imageBase64: base64Image,
+      }),
+    },
+  );
 
-    // 🔥 เรียกโหลดข้อมูลใหม่ ถ้าอยู่ในหน้า homepage
-    if (typeof loadDashboardData === "function") {
-        await loadDashboardData();
-    }
+  if (!response.ok) {
+    const errorData = await response.text();
+    throw new Error("Failed to add item. " + errorData);
+  }
 
-    return response.json();
+  // 🔥 เรียกโหลดข้อมูลใหม่ ถ้าอยู่ในหน้า homepage
+  if (typeof loadDashboardData === "function") {
+    await loadDashboardData();
+  }
+
+  return response.json();
 };
 
 // EDIT inventory
 window.BiteBrightAPI.editInventoryItem = async function (ingredientId, item) {
-    const userId = getUserId();
+  const userId = getUserId();
 
-    let base64Image = null;
-    if (item.imageFile) {
-        base64Image = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result.split(",")[1]);
-            reader.onerror = error => reject(error);
-            reader.readAsDataURL(item.imageFile);
-        });
-    }
-
-    const response = await fetch(`https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/ingredient`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            userId,
-            ingredientId,
-            name: item.name,
-            category: item.category,
-            quantity: item.quantity,
-            expiryDate: item.expiryDate,
-            imageBase64: base64Image
-        })
+  let base64Image = null;
+  if (item.imageFile) {
+    base64Image = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(",")[1]);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(item.imageFile);
     });
+  }
 
-    if (!response.ok) throw new Error("Failed to edit item.");
+  const response = await fetch(
+    `https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/ingredient`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        ingredientId,
+        name: item.name,
+        category: item.category,
+        quantity: item.quantity,
+        expiryDate: item.expiryDate,
+        imageBase64: base64Image,
+      }),
+    },
+  );
 
-    return response.json();
+  if (!response.ok) throw new Error("Failed to edit item.");
+
+  return response.json();
 };
-
 
 // แนะนำเมนู (recommendMenu)
 window.BiteBrightAPI.getRecommendedRecipes = async function () {
-    const userId = getUserId();
+  const userId = getUserId();
 
-    const url = `https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/recommend-menu?userId=${userId}`;
+  const url = `https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/recommend-menu?userId=${userId}`;
 
-    const response = await fetch(url, { method: "GET" });
+  const response = await fetch(url, { method: "GET" });
 
-    if (!response.ok) throw new Error("Failed to fetch recommended recipes.");
+  if (!response.ok) throw new Error("Failed to fetch recommended recipes.");
 
-    return response.json();
+  return response.json();
+};
+// expire item
+window.BiteBrightAPI.getExpiringIngredients = async function () {
+  const userId = getUserId();
+
+  const response = await fetch(
+    `https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/check_expiry?userId=${userId}`,
+    {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    },
+  );
+
+  if (!response.ok) throw new Error("Failed to fetch expiring ingredients.");
+
+  const result = await response.json();
+  return result.items || [];
 };
