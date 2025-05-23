@@ -133,7 +133,7 @@ window.BiteBrightAPI.getExpiringIngredients = async function () {
   const userId = getUserId();
 
   const response = await fetch(
-    `https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/check_expiry?userId=${userId}`,
+    `https://0d74mxdrlf.execute-api.us-east-1.amazonaws.com/newbitebright/check?userId=${userId}`,
     {
       method: "GET",
       headers: { "Content-Type": "application/json" },

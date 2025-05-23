@@ -11,7 +11,7 @@ async function loadDashboardData() {
     const expiringIngredients =
       await window.BiteBrightAPI.getExpiringIngredients();
     if (expiringIngredients.length > 0) {
-      showExpiryNotification(expiringIngredients);
+      showNotification(expiringIngredients);
     }
 
     const recipeContainer = document.getElementById("recipe-list");
@@ -253,4 +253,3 @@ function showToast(message) {
     }, 500);
   }, 3000);
 }
-
