@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   setupLogout();
   setupProfileDropdown();
+  setupMarkAllRead();
+  updateNotificationTimes();
+  showNotification();
   setupNotificationDropdown();
 });
 
@@ -63,6 +66,93 @@ function setupNotificationDropdown() {
   }
 }
 
+function showNotification(items) {
+  const list = document.querySelector(".notification-list");
+
+  list.innerHTML = "";
+
+  if (!items || items.length === 0) {
+    const emptyNotification = document.createElement("div");
+    emptyNotification.className = "notification-item";
+    emptyNotification.innerHTML = `
+      <div class="notification-icon info">
+        <i class="fas fa-info-circle"></i>
+      </div>
+      <div class="notification-content">
+        <p class="notification-text">No expiring items today</p>
+        <p class="notification-time">Now</p>
+      </div>
+    `;
+    list.appendChild(emptyNotification);
+    return;
+  }
+
+  items.forEach((item) => {
+    const notification = document.createElement("div");
+    notification.className = "notification-item unread";
+    notification.innerHTML = `
+      <div class="notification-icon warning">
+        <i class="fas fa-exclamation-circle"></i>
+      </div>
+      <div class="notification-content">
+        <p class="notification-text">${item.name} is expiring soon!</p>
+        <p class="notification-time">${formatDate(item.expiry_date)}</p>
+      </div>
+    `;
+    list.appendChild(notification);
+  });
+
+  const badge = document.querySelector(".notification-badge");
+  badge.textContent = items.length;
+  badge.style.display = items.length > 0 ? "inline-block" : "none";
+}
+
+function formatDate(dateStr) {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+function setupMarkAllRead() {
+  const markAllReadBtn = document.querySelector(".mark-all-read");
+  const notificationItems = document.querySelectorAll(
+    ".notification-item.unread",
+  );
+  const badge = document.querySelector(".notification-badge");
+
+  if (markAllReadBtn) {
+    markAllReadBtn.addEventListener("click", () => {
+      notificationItems.forEach((item) => item.classList.remove("unread"));
+
+      if (badge) {
+        badge.textContent = "0";
+        badge.style.display = "none";
+      }
+    });
+  }
+}
+
+function updateNotificationTimes() {
+  document.querySelectorAll(".notification-time").forEach((el) => {
+    const timestamp = el.dataset.timestamp;
+    if (timestamp) {
+      const date = new Date(timestamp);
+      el.textContent = formatTimeAgo(date);
+    }
+  });
+}
+
+function formatTimeAgo(date) {
+  const now = new Date();
+  const seconds = Math.floor((now - date) / 1000);
+
+  if (seconds < 60) return "Just now";
+  if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+  return date.toLocaleDateString();
+}
 // ---- Toast Notification ----
 function showToast(message) {
   const existingToast = document.querySelector(".toast");
