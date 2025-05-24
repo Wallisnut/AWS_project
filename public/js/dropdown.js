@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   setupLogout();
   setupProfileDropdown();
+  displayUser();
 });
 
 // ---- Logout Setup ----
@@ -38,6 +39,22 @@ function setupProfileDropdown() {
         userDropdown.classList.remove("active");
       }
     });
+  }
+}
+
+function displayUser() {
+  const usernameEl = document.querySelector(".user-name");
+  const emailEl = document.querySelector(".user-email");
+
+  const username = localStorage.getItem("username");
+  const email = localStorage.getItem("email");
+
+  if (usernameEl && username) {
+    usernameEl.textContent = username;
+  }
+
+  if (emailEl && email) {
+    emailEl.textContent = email;
   }
 }
 
