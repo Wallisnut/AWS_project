@@ -21,7 +21,7 @@ async function loadRecipeData() {
         const recipes = await window.BiteBrightAPI.getRecommendedRecipes();
         console.log('Loaded recipes:', recipes);
 
-        const recipe = recipes.find(r => r.id === selectedId);
+        const recipe = recipes.find(r => String(r.id) === String(selectedId));
 
         if (!recipe) {
             recipeTitle.textContent = 'Recipe not found';
@@ -132,6 +132,24 @@ function setupFavoriteButton(recipeId) {
     });
 }
 
+function setupLogout() {
+  const logoutBtn = document.querySelector(".logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      logout();
+    });
+  }
+}
+
+function logout() {
+  localStorage.removeItem("userId");
+  showToast("You have been logged out.");
+  setTimeout(() => {
+    window.location.href = "login.html";
+  }, 500);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+    setupLogout();
     await loadRecipeData();
 });
