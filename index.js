@@ -13,59 +13,87 @@ exports.handler = async () => {
 
   try {
     const data = await dynamodb.scan(params).promise();
-    const userItemsMap = {};
 
+    const userIdToItems = {};
+    const userIds = new Set();
+
+    // ดึงรายการ ingredients และจัดกลุ่มตาม userId
     for (const item of data.Items) {
       const expiry = new Date(item.expiryDate);
       if (expiry >= today && expiry <= thresholdDate) {
-        if (!userItemsMap[item.userEmail]) {
-          userItemsMap[item.userEmail] = [];
+        if (!userIdToItems[item.userId]) {
+          userIdToItems[item.userId] = [];
         }
-        userItemsMap[item.userEmail].push(item);
+        userIdToItems[item.userId].push(item);
+        userIds.add(item.userId);
       }
     }
 
-    for (const [userEmail, items] of Object.entries(userItemsMap)) {
-      const topicName = `expiry-${userEmail.replace(/[@.]/g, '-')}`;
+    // เตรียม BatchGet สำหรับ table User
+    const keys = Array.from(userIds).map(id => ({ userID: id }));
+
+    const userData = await dynamodb.batchGet({
+      RequestItems: {
+        User: {
+          Keys: keys,
+        },
+      },
+    }).promise();
+
+    const userIdToEmail = {};
+    for (const user of userData.Responses.User) {
+      userIdToEmail[user.userID] = user.email;
+    }
+
+    // จัดกลุ่ม item ตาม email
+    const emailToItems = {};
+    for (const [userId, items] of Object.entries(userIdToItems)) {
+      const email = userIdToEmail[userId];
+      if (!email) continue;
+
+      if (!emailToItems[email]) {
+        emailToItems[email] = [];
+      }
+      emailToItems[email].push(...items);
+    }
+
+    // ส่ง SNS ไปยังแต่ละ email
+    for (const [email, items] of Object.entries(emailToItems)) {
+      const topicName = `expiry-${email.replace(/[@.]/g, '-')}`;
       const topicResponse = await sns.createTopic({ Name: topicName }).promise();
       const topicArn = topicResponse.TopicArn;
 
-      // ตรวจว่า email ได้ subscribe แล้วหรือยัง
       const subscriptions = await sns.listSubscriptionsByTopic({ TopicArn: topicArn }).promise();
       const isSubscribed = subscriptions.Subscriptions.some(sub =>
-        sub.Endpoint === userEmail && sub.Protocol === 'email'
+        sub.Endpoint === email && sub.Protocol === 'email'
       );
 
-      //  subscribe อัตโนมัติถ้ายังไม่มี (user จะได้อีเมลยืนยัน)
       if (!isSubscribed) {
         await sns.subscribe({
           Protocol: 'email',
           TopicArn: topicArn,
-          Endpoint: userEmail,
+          Endpoint: email,
         }).promise();
-        console.log(`ส่งคำเชิญ subscribe ไปยัง ${userEmail}`);
+        console.log(`ส่งคำเชิญ subscribe ไปยัง ${email}`);
       }
 
-      // เตรียมข้อความแจ้งเตือน
       const lines = items.map(i => `- ${i.name} (หมดอายุ: ${i.expiryDate})`).join('\n');
+      const message = `สวัสดีครับ\n\nรายการวัตถุดิบของคุณที่ใกล้หมดอายุ:\n${lines}\nกรุณาตรวจสอบและจัดการให้เหมาะสม\nขอบคุณครับ`;
 
-      const message = `สวัสดีครับ\n\nรายการวัตถุดิบของคุณที่ใกล้หมดอายุ:\n\n${lines}\n\nกรุณาตรวจสอบและจัดการให้เหมาะสม\n\nขอบคุณครับ`;
-
-      // ส่งข้อความผ่าน SNS
       await sns.publish({
         TopicArn: topicArn,
         Subject: 'แจ้งเตือนวัตถุดิบใกล้หมดอายุ',
         Message: message,
       }).promise();
 
-      console.log(`แจ้งเตือนส่งไปยัง ${userEmail} ผ่าน Topic: ${topicName}`);
+      console.log(`แจ้งเตือนส่งไปยัง ${email} ผ่าน Topic: ${topicName}`);
     }
 
     return {
       statusCode: 200,
       body: JSON.stringify({
         status: 'success',
-        usersNotified: Object.keys(userItemsMap).length,
+        usersNotified: Object.keys(emailToItems).length,
       }),
     };
   } catch (error) {
