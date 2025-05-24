@@ -7,17 +7,16 @@ exports.handler = async () => {
   const thresholdDate = new Date();
   thresholdDate.setDate(today.getDate() + 3);
 
-  const params = {
+  const ingredientParams = {
     TableName: 'Ingredients',
   };
 
   try {
-    const data = await dynamodb.scan(params).promise();
+    const data = await dynamodb.scan(ingredientParams).promise();
 
     const userIdToItems = {};
     const userIds = new Set();
 
-    // ดึงรายการ ingredients และจัดกลุ่มตาม userId
     for (const item of data.Items) {
       const expiry = new Date(item.expiryDate);
       if (expiry >= today && expiry <= thresholdDate) {
@@ -29,27 +28,17 @@ exports.handler = async () => {
       }
     }
 
-    // เตรียม BatchGet สำหรับ table User
-    const keys = Array.from(userIds).map(id => ({ userID: id }));
-
-    const userData = await dynamodb.batchGet({
-      RequestItems: {
-        User: {
-          Keys: keys,
-        },
-      },
-    }).promise();
+    const userData = await dynamodb.scan({ TableName: 'User' }).promise();
 
     const userIdToEmail = {};
-    for (const user of userData.Responses.User) {
+    for (const user of userData.Items) {
       userIdToEmail[user.userID] = user.email;
     }
 
-    // จัดกลุ่ม item ตาม email
     const emailToItems = {};
     for (const [userId, items] of Object.entries(userIdToItems)) {
       const email = userIdToEmail[userId];
-      if (!email) continue;
+      if (!email) continue; 
 
       if (!emailToItems[email]) {
         emailToItems[email] = [];
@@ -57,7 +46,6 @@ exports.handler = async () => {
       emailToItems[email].push(...items);
     }
 
-    // ส่ง SNS ไปยังแต่ละ email
     for (const [email, items] of Object.entries(emailToItems)) {
       const topicName = `expiry-${email.replace(/[@.]/g, '-')}`;
       const topicResponse = await sns.createTopic({ Name: topicName }).promise();
@@ -78,7 +66,7 @@ exports.handler = async () => {
       }
 
       const lines = items.map(i => `- ${i.name} (หมดอายุ: ${i.expiryDate})`).join('\n');
-      const message = `สวัสดีครับ\n\nรายการวัตถุดิบของคุณที่ใกล้หมดอายุ:\n${lines}\nกรุณาตรวจสอบและจัดการให้เหมาะสม\nขอบคุณครับ`;
+      const message = `สวัสดีครับ\n\nรายการวัตถุดิบของคุณที่ใกล้หมดอายุ:\n\n${lines}\n\nกรุณาตรวจสอบและจัดการให้เหมาะสม\n\nขอบคุณครับ`;
 
       await sns.publish({
         TopicArn: topicArn,
